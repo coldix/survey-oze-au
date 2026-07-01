@@ -1,0 +1,15 @@
+# survey.oze.au
+
+> Oze.au survey platform — beautiful vanilla HTML surveys with OzeGlass Aurora styling.
+
+## Surveys
+
+- Money in Your Wallet: https://survey.oze.au/money/ — Australian currency knowledge quiz (denominations, colours, historical figures, $5 redesign).
+
+## Repo
+
+https://github.com/coldix/survey-oze-au
+
+## Canonical playbook
+
+https://oze.au/docs/PLAYBOOK.md

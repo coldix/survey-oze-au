@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--
+  File: index.html
+  Website: survey.oze.au
+  Description: Survey platform landing — lists available surveys
+  Version: 1.0.0
+  Date: 1 Jul 2026 | 4:30 PM AEST
+  Author: Colin Dixon + Claude Opus 4.8
+-->
+<html lang="en-AU" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>survey.oze.au — Oze Survey Platform</title>
+  <meta name="description" content="Beautiful educational surveys from oze.au.">
+  <link rel="canonical" href="https://survey.oze.au/">
+  <style>
+    :root { --bg:#08121a; --ink:#eaf3f1; --soft:#9fb4b0; --accent:#ffc107; --glass:rgba(255,255,255,0.06); --line:rgba(255,255,255,0.12); }
+    * { box-sizing:border-box; margin:0; }
+    body { font-family:system-ui,sans-serif; background:var(--bg); color:var(--ink); min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:2rem; }
+    .card { max-width:480px; width:100%; background:var(--glass); border:1px solid var(--line); border-radius:18px; padding:2rem; text-align:center; }
+    h1 { font-size:1.75rem; margin-bottom:0.5rem; }
+    p { color:var(--soft); margin-bottom:1.5rem; line-height:1.6; }
+    a.survey-link { display:block; padding:1rem 1.25rem; border-radius:12px; background:rgba(255,193,7,0.12); border:1px solid rgba(255,193,7,0.35); color:var(--accent); text-decoration:none; font-weight:600; }
+    a.survey-link:hover { background:rgba(255,193,7,0.2); }
+    .sub { display:block; font-size:0.85rem; font-weight:400; color:var(--soft); margin-top:0.25rem; }
+    footer { margin-top:1.5rem; font-size:0.8rem; color:var(--soft); }
+    footer a { color:var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>survey.oze.au</h1>
+    <p>Educational surveys from the oze.au family — anonymous, engaging, and far better than Google Forms.</p>
+    <a class="survey-link" href="money/">
+      Money in Your Wallet
+      <span class="sub">Australian Currency Knowledge Survey · ~5 min</span>
+    </a>
+    <footer>© 2026 Colin Dixon · <a href="https://oze.au">oze.au</a></footer>
+  </div>
+</body>
+</html>
