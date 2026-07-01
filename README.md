@@ -49,7 +49,7 @@ Follows the oze.au subdomain playbook. Target Hostinger path (hub docroot):
 oze.au/public_html/survey/
 ```
 
-`rsync` on push to `main` (see `.github/workflows/deploy.yml`). Requires `HOSTINGER_SSH_KEY_B64` secret on the repo.
+GitHub Actions workflow template: [`docs/deploy-workflow.yml`](docs/deploy-workflow.yml). Copy to `.github/workflows/deploy.yml` and add the `HOSTINGER_SSH_KEY_B64` repo secret (needs a PAT with `workflow` scope to push workflow files).
 
 Manual deploy (after SSH key is in `~/.ssh/gha_hostinger`):
 
