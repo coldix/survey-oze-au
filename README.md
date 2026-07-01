@@ -15,9 +15,10 @@ Beautiful, embeddable survey platform for [oze.au](https://oze.au) — OzeGlass 
 
 | Path | Purpose |
 |------|---------|
-| `money/index.html` | Currency knowledge survey (MVP, v1.0.2) |
+| `money/index.html` | Currency knowledge survey (MVP, v1.0.3) |
 | `money/images/` | oze.au logo and survey assets |
 | `docs/survey-project-plan.md` | Full project plan and roadmap |
+| `docs/layout-lessons.md` | **Layout dos/don'ts** — read before building survey #2 |
 | `docs/playbook.md` | oze.au house conventions (reference copy) |
 
 ## Features (Money survey)

@@ -3,8 +3,8 @@
   File: survey/money/index.html
   Website: survey.oze.au
   Description: Money in Your Wallet — Australian Currency Knowledge Survey
-  Version: 1.0.2
-  Date: 1 Jul 2026 | 4:15 PM AEST
+  Version: 1.0.3
+  Date: 1 Jul 2026 | 11:45 PM AEST
   Author: Colin Dixon + Claude Opus 4.8
 -->
 <html lang="en-AU" data-theme="dark">
@@ -225,6 +225,19 @@
     @media (max-width: 380px) {
       .options-multi, .options-grid { grid-template-columns: 1fr; }
     }
+    .options-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    @media (min-width: 520px) {
+      .options-grid-2.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* ── Demographics grid ── */
+    .demo-fields { display: flex; flex-direction: column; gap: 1.25rem; }
+    .demo-field h3 { margin-bottom: 0.55rem; font-size: 1rem; }
+    .demo-field--age .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    .demo-field--gender .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    @media (min-width: 480px) {
+      .demo-field--age .options { grid-template-columns: repeat(4, 1fr); }
+    }
     .option {
       display: flex; align-items: center; gap: 0.75rem;
       padding: 0.85rem 1.1rem; border-radius: var(--radius-sm);
@@ -268,16 +281,16 @@
       border: 1.5px dashed var(--line); min-height: 70px; margin-bottom: 1.2rem;
     }
     .dnd-pool:empty::after { content: "All items placed ✓"; color: var(--correct); font-weight: 600; font-size: 0.9rem; }
+    .colour-match-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.85rem; }
     .dnd-colours-pool {
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem;
-      padding: 1rem; border-radius: var(--radius-sm);
-      border: 1.5px dashed var(--line); margin-bottom: 1.4rem;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem;
+      padding: 0.6rem 0.75rem; border-radius: var(--radius-sm);
+      border: 1.5px dashed var(--line); width: 100%; max-width: 360px;
     }
     .dnd-colours-pool:empty::after {
       content: "All colours placed ✓"; color: var(--correct); font-weight: 600;
-      font-size: 0.9rem; width: 100%; text-align: center;
+      font-size: 0.85rem; width: 100%; text-align: center;
     }
-    .dnd-colours-pool .colour-swatch { width: 72px; flex-shrink: 0; }
     .dnd-item {
       padding: 0.55rem 0.9rem; border-radius: var(--radius-sm);
       border: 1.5px solid var(--line-strong); background: var(--surface-2);
@@ -289,12 +302,12 @@
     .dnd-item.selected-tap { outline: 2px solid var(--accent); outline-offset: 2px; }
     .dnd-item.dragging { opacity: 0.5; }
     .dnd-item.colour-swatch {
-      width: 100%; aspect-ratio: 1.6 / 1; padding: 0; border: none;
-      border-radius: 8px; overflow: hidden;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      width: 48px; height: 32px; flex: 0 0 48px; padding: 0; border: none;
+      border-radius: 6px; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.22);
     }
     .dnd-item.colour-swatch .swatch-inner {
-      width: 100%; height: 100%; border-radius: 8px;
+      width: 48px; height: 32px; border-radius: 6px;
     }
     .dnd-item.person-chip { display: flex; flex-direction: column; gap: 0.1rem; }
     .dnd-item.person-chip--placed {
@@ -318,17 +331,24 @@
     }
 
     .dnd-zones { display: flex; flex-direction: column; gap: 0.65rem; }
-    .dnd-colours-grid, .dnd-people-grid {
-      display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem;
+    .dnd-colours-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.45rem;
+      width: 100%; max-width: 400px;
     }
-    @media (max-width: 720px) {
-      .dnd-colours-grid, .dnd-people-grid { grid-template-columns: repeat(4, 1fr); }
+    .dnd-people-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.45rem;
+      width: 100%;
     }
     @media (max-width: 480px) {
-      .dnd-colours-grid, .dnd-people-grid { grid-template-columns: repeat(3, 1fr); }
+      .dnd-colours-grid, .dnd-people-grid { grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }
+      .dnd-colours-grid .note-drop:nth-child(4),
+      .dnd-colours-grid .note-drop:nth-child(5),
+      .dnd-people-grid .people-note-zone:nth-child(4),
+      .dnd-people-grid .people-note-zone:nth-child(5) { grid-column: span 1; }
     }
-    @media (max-width: 340px) {
-      .dnd-colours-grid, .dnd-people-grid { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 360px) {
+      .dnd-people-grid { grid-template-columns: repeat(2, 1fr); }
+      .dnd-colours-grid { grid-template-columns: repeat(2, 1fr); }
     }
     .dnd-zone {
       display: flex; align-items: center; gap: 0.75rem;
@@ -337,9 +357,9 @@
       transition: all 0.2s var(--ease);
     }
     .note-drop {
-      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-      padding: 0.75rem; border-radius: var(--radius-sm);
-      border: 1.5px dashed var(--line); min-height: 110px;
+      display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+      padding: 0.35rem; border-radius: var(--radius-sm);
+      border: 1.5px dashed var(--line); min-height: auto;
       transition: all 0.2s var(--ease); cursor: pointer;
     }
     .note-drop.drag-over, .note-drop.tap-target,
@@ -356,12 +376,10 @@
     .people-note-zone .zone-items {
       display: flex; flex-direction: column; gap: 0.25rem; flex: 1;
     }
-    .people-note-zone--decoy { opacity: 0.55; cursor: default; }
-    .note-drop--decoy { opacity: 0.55; cursor: default; }
     .note-card {
-      width: 100%; aspect-ratio: 1.6 / 1; border-radius: 8px;
+      width: 100%; height: 40px; border-radius: 6px;
       display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-display); font-weight: 700; font-size: 1.25rem;
+      font-family: var(--font-display); font-weight: 700; font-size: 0.9rem;
       color: var(--ink-soft); background: var(--surface-2);
       border: 1.5px solid var(--line); position: relative; overflow: hidden;
     }
@@ -386,7 +404,6 @@
     .note-20 { background: linear-gradient(135deg, #ef4444, #ea580c); }
     .note-50 { background: linear-gradient(135deg, #eab308, #ca8a04); }
     .note-100 { background: linear-gradient(135deg, #22c55e, #15803d); }
-    .note-25, .note-200 { background: linear-gradient(135deg, #6b7280, #4b5563); }
     .zone-items { display: flex; flex-wrap: wrap; gap: 0.4rem; flex: 1; min-height: 28px; }
 
     .swatch-pink { background: linear-gradient(135deg, #f472b6, #ec4899); }
@@ -548,7 +565,7 @@
   <main id="app"></main>
 
   <footer>
-    <p>© 2026 Colin Dixon · All rights reserved · v1.0.2 · 1 Jul 2026 · Website by <a href="https://oze.au">oze.au</a></p>
+    <p>© 2026 Colin Dixon · All rights reserved · v1.0.3 · 1 Jul 2026 · Website by <a href="https://oze.au">oze.au</a></p>
     <div class="footer-links">
       <a href="#" id="privacy-link">Privacy</a>
       <a href="https://oze.au">oze.au</a>
@@ -559,9 +576,8 @@
   /* ══════════════════════════════════════════════════════════════
      Money in Your Wallet — Survey Engine v1.0.0
      ══════════════════════════════════════════════════════════════ */
-  const VERSION = '1.0.2';
-  const NOTE_ZONES = ['5','10','20','25','50','100','200'];
-  const DECOY_NOTES = ['25','200'];
+  const VERSION = '1.0.3';
+  const NOTE_ZONES = ['5','10','20','50','100'];
 
   function shuffleArray(arr) {
     const a = [...arr];
@@ -632,7 +648,7 @@
     {
       id: 'q_colours', phase: 'Phase 1 — Basics', type: 'drag-colours', scored: true, statKey: 'q_colours',
       question: 'Drag each <strong>colour</strong> onto the matching banknote.',
-      hint: 'Drag each colour onto the matching $ note (smallest → largest). $25 and $200 are decoys. Tap swatch → tap note on mobile.',
+      hint: 'Drag each colour onto the matching $ note ($5 → $100). Tap swatch → tap note on mobile. Tap a filled note to return.',
       items: [
         { id: 'pink',   ariaLabel: 'Pink swatch',   class: 'swatch-pink',   correct: '5' },
         { id: 'blue',   ariaLabel: 'Blue swatch',   class: 'swatch-blue',   correct: '10' },
@@ -641,26 +657,26 @@
         { id: 'green',  ariaLabel: 'Green swatch',  class: 'swatch-green',  correct: '100' },
       ],
       zones: NOTE_ZONES,
-      explanation: 'Each denomination has a distinct colour: $5 pink, $10 blue, $20 red/orange, $50 yellow/gold, $100 green. These colours help Australians — including those with low vision — identify notes quickly. ($25 and $200 notes do not exist.)',
+      explanation: 'Each denomination has a distinct colour: $5 pink, $10 blue, $20 red/orange, $50 yellow/gold, $100 green. These colours help Australians — including those with low vision — identify notes quickly.',
     },
     {
-      id: 'q_decimal', phase: 'Phase 1 — Basics', type: 'single', scored: true, statKey: 'q_decimal',
+      id: 'q_decimal', phase: 'Phase 1 — Basics', type: 'single', scored: true, statKey: 'q_decimal', grid: 2, gridCols: 3,
       question: 'When did Australia switch to decimal currency?',
-      options: ['14 February 1966','1 January 1970','26 January 1988','1 July 1992'],
+      options: ['14 February 1966','1 January 1901','9 May 1967','1 January 1970','26 January 1988','1 July 1992'],
       correct: '14 February 1966',
       explanation: 'Australia adopted decimal currency on 14 February 1966 — "C-Day". The pound was replaced by the dollar at a rate of £1 = $2.',
     },
     {
-      id: 'q_women', phase: 'Phase 1 — Basics', type: 'single', scored: true, statKey: 'q_women',
+      id: 'q_women', phase: 'Phase 1 — Basics', type: 'single', scored: true, statKey: 'q_women', grid: 2,
       question: 'How many <strong>women</strong> (excluding the monarch) appear on current Australian banknotes?',
       options: ['2','3','4','5'],
       correct: '4',
       explanation: 'Four women feature on current notes: Dame Mary Gilmore ($10), Mary Reibey ($20), Edith Cowan ($50), and Dame Nellie Melba ($100). Australia is one of only a handful of countries with more women than men on its currency.',
     },
     {
-      id: 'q_kookaburra', phase: 'Phase 1 — Basics', type: 'single', scored: true, statKey: 'q_kookaburra',
+      id: 'q_kookaburra', phase: 'Phase 1 — Basics', type: 'single', scored: true, statKey: 'q_kookaburra', grid: 2, gridCols: 3,
       question: 'Which native bird appears in the security features of the $20 note?',
-      options: ['Sulphur-crested Cockatoo','Laughing Kookaburra','Eastern Spinebill','Black Swan'],
+      options: ['Laughing Kookaburra','Sulphur-crested Cockatoo','Eastern Spinebill','Black Swan','Australian Masked Owl','Rainbow Lorikeet'],
       correct: 'Laughing Kookaburra',
       explanation: 'Each note in the new series features a native wattle and bird. The $20 carries Box-leaf Wattle and the Laughing Kookaburra (Dacelo novaeguineae).',
     },
@@ -865,19 +881,23 @@
     }
 
     renderDemographics(q) {
-      return q.fields.map(f => `
-        <div style="margin-bottom:1.4rem">
-          <h3 style="margin-bottom:0.6rem">${f.label}</h3>
+      const fieldCls = id => id === 'age' ? 'demo-field--age' : 'demo-field--gender';
+      return `<div class="demo-fields">${q.fields.map(f => `
+        <div class="demo-field ${fieldCls(f.id)}">
+          <h3>${f.label}</h3>
           <div class="options" data-field="${f.id}">
             ${f.options.map(o => `<label class="option"><input type="radio" name="${f.id}" value="${o}"><span class="option-label">${o}</span></label>`).join('')}
           </div>
-        </div>`).join('');
+        </div>`).join('')}</div>`;
     }
 
     renderChoice(q) {
       const inputType = q.type === 'checkbox' ? 'checkbox' : 'radio';
       const name = q.id;
-      const gridClass = q.type === 'checkbox' ? ' options-multi' : (q.grid ? ' options-grid' : '');
+      let gridClass = '';
+      if (q.type === 'checkbox') gridClass = ' options-multi';
+      else if (q.grid === 2) gridClass = ` options-grid options-grid-2${q.gridCols === 3 ? ' cols-3' : ''}`;
+      else if (q.grid) gridClass = ' options-grid';
       return `<div class="options${gridClass}" data-qid="${q.id}">
         ${q.options.map(o => `<label class="option"><input type="${inputType}" name="${name}" value="${o}"><span class="option-label">${o}</span></label>`).join('')}
       </div>`;
@@ -926,13 +946,11 @@
         ).join('');
 
         const zonesHTML = q.zones.map(z => {
-          const isDecoy = DECOY_NOTES.includes(z);
           const pid = (placements[z] || [])[0];
           const it = pid ? q.items.find(i => i.id === pid) : null;
           const swatchHTML = it ? `<div class="placed-swatch ${it.class}"></div>` : '';
           const hasColour = !!it;
-          const decoyCls = isDecoy ? ' note-drop--decoy' : '';
-          return `<div class="note-drop${decoyCls}" data-zone="${z}"${isDecoy ? ' data-decoy="1"' : ''}>
+          return `<div class="note-drop" data-zone="${z}">
             <div class="note-card${hasColour ? ' has-colour' : ''}">
               ${swatchHTML}
               <span class="note-value">$${z}</span>
@@ -942,8 +960,10 @@
         }).join('');
 
         return `<p class="dnd-hint">${hint}</p>
-          <div class="dnd-colours-pool" id="dnd-pool">${poolHTML}</div>
-          <div class="dnd-colours-grid" id="dnd-zones">${zonesHTML}</div>`;
+          <div class="colour-match-wrap">
+            <div class="dnd-colours-pool" id="dnd-pool">${poolHTML}</div>
+            <div class="dnd-colours-grid" id="dnd-zones">${zonesHTML}</div>
+          </div>`;
       }
 
       const poolHTML = q.items
@@ -952,13 +972,11 @@
         .join('');
 
       const zonesHTML = q.zones.map(z => {
-        const isDecoy = DECOY_NOTES.includes(z);
         const placed = (placements[z] || []).map(pid => {
           const it = q.items.find(i => i.id === pid);
           return it ? this.personChip(it, true) : '';
         }).join('');
-        const decoyCls = isDecoy ? ' people-note-zone--decoy' : '';
-        return `<div class="people-note-zone${decoyCls}" data-zone="${z}"${isDecoy ? ' data-decoy="1"' : ''}>
+        return `<div class="people-note-zone" data-zone="${z}">
           <div class="note-badge note-${z}">$${z}</div>
           <div class="zone-items">${placed}</div>
         </div>`;
@@ -977,15 +995,12 @@
       btnNext.onclick = () => this.next();
 
       if (q.type === 'demographics') {
-        this.app.querySelectorAll('.options').forEach(group => {
-          group.querySelectorAll('.option').forEach(opt => {
-            opt.addEventListener('click', () => {
-              const inp = opt.querySelector('input');
-              inp.checked = true;
-              group.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
-              opt.classList.add('selected');
-              this.saveDemographics();
-            });
+        this.app.querySelectorAll('.demo-field input').forEach(inp => {
+          inp.addEventListener('change', () => {
+            const group = inp.closest('.options');
+            group.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+            inp.closest('.option').classList.add('selected');
+            this.saveDemographics();
           });
         });
       } else if (q.type === 'single' || q.type === 'checkbox') {
@@ -1038,7 +1053,6 @@
           placements[z] = placements[z].filter(id => id !== itemId);
         }
         if (zoneKey !== 'pool') {
-          if (DECOY_NOTES.includes(zoneKey)) return;
           if (isColour && placements[zoneKey].length) {
             /* single swatch per note — displaced swatch returns to pool */
           }
@@ -1077,7 +1091,6 @@
       });
 
       zones.querySelectorAll('.dnd-zone, .note-drop, .people-note-zone').forEach(zone => {
-        if (zone.dataset.decoy) return;
         zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
         zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
         zone.addEventListener('drop', e => {
