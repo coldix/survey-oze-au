@@ -1,0 +1,18 @@
+{
+  "name": "survey.oze.au",
+  "short_name": "oze survey",
+  "description": "Anonymous Australian surveys from the oze.au family.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "lang": "en-AU",
+  "background_color": "#08121a",
+  "theme_color": "#08121a",
+  "icons": [
+    {
+      "src": "/images/oze-logo.png",
+      "sizes": "256x119",
+      "type": "image/png"
+    }
+  ]
+}

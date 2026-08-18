@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Faq from '../../components/Faq.astro';
 import SurveyRunner from '../../components/SurveyRunner';
 import { getSurvey, listSurveys } from '../../lib/surveys';
+import { MONEY, MONEY_FAQ, SITE, breadcrumbJsonLd, faqJsonLd, websiteJsonLd } from '../../lib/site';
 
 export function getStaticPaths() {
   return listSurveys().map((survey) => ({ params: { slug: survey.slug } }));
@@ -9,9 +11,58 @@ export function getStaticPaths() {
 
 const survey = getSurvey(Astro.params.slug ?? '');
 if (!survey) return Astro.redirect('/404');
+
+const pageUrl = `${SITE.url}/s/${survey.slug}`;
+const isMoney = survey.slug === 'money';
+const title = isMoney ? MONEY.title : `${survey.title} — ${SITE.name}`;
+const description = isMoney ? MONEY.description : survey.subtitle;
+const faq = isMoney ? MONEY_FAQ : [];
+
+const jsonLd = [
+  websiteJsonLd(),
+  {
+    '@context': 'https://schema.org',
+    '@type': isMoney ? ['LearningResource', 'Quiz'] : 'WebPage',
+    name: survey.title,
+    headline: title,
+    url: pageUrl,
+    inLanguage: 'en-AU',
+    description,
+    isPartOf: { '@type': 'WebSite', name: SITE.name, url: SITE.url },
+    isAccessibleForFree: true,
+    ...(isMoney
+      ? {
+          learningResourceType: 'Quiz',
+          educationalUse: 'practice',
+          timeRequired: `PT${survey.minutes}M`,
+          about: [
+            { '@type': 'Thing', name: 'Australian banknotes' },
+            { '@type': 'Thing', name: 'Reserve Bank of Australia polymer series' },
+          ],
+          audience: { '@type': 'Audience', geographicArea: 'Australia' },
+        }
+      : {}),
+  },
+  breadcrumbJsonLd([
+    { name: 'Home', url: SITE.url },
+    { name: survey.title, url: pageUrl },
+  ]),
+  ...(faq.length ? [faqJsonLd(faq)] : []),
+];
 ---
-<BaseLayout title={`${survey.title} — survey.oze.au`} description={survey.subtitle}>
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
   <div class="wrap" style="padding-block: 2rem;">
     <SurveyRunner client:load survey={survey} />
+    {isMoney && (
+      <section class="glass" id="about" style="margin-top: 1.5rem;">
+        <h2>About this survey</h2>
+        <p class="lede">
+          Money in Your Wallet is a scored quiz on Australia’s current polymer banknotes: which denominations circulate,
+          what the notes are made from, their colours, the people on each denomination, and the Reserve Bank’s plan for
+          a new $5. It takes about {survey.minutes} minutes. One attempt per browser. Answers are anonymous.
+        </p>
+      </section>
+    )}
+    {faq.length > 0 && <Faq items={faq} />}
   </div>
 </BaseLayout>

@@ -1,11 +1,13 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Faq from '../../components/Faq.astro';
 import MonthlyPollApp from '../../components/MonthlyPollApp';
 import { describePollWindow } from '../../lib/poll-window';
-import { POLL_FAQ, POLL_SOCIAL_COPY, POLL_URL, SITE } from '../../lib/site';
+import { POLL_FAQ, POLL_SOCIAL_COPY, POLL_URL, SITE, breadcrumbJsonLd, faqJsonLd, websiteJsonLd } from '../../lib/site';
 
 const pollWindow = describePollWindow();
 const jsonLd = [
+  websiteJsonLd(),
   {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
@@ -19,15 +21,11 @@ const jsonLd = [
     ],
     relatedLink: SITE.tracker,
   },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: POLL_FAQ.map((item) => ({
-      '@type': 'Question',
-      name: item.q,
-      acceptedAnswer: { '@type': 'Answer', text: item.a },
-    })),
-  },
+  breadcrumbJsonLd([
+    { name: 'Home', url: SITE.url },
+    { name: 'Monthly voting poll', url: POLL_URL },
+  ]),
+  faqJsonLd(POLL_FAQ),
 ];
 ---
 <BaseLayout
@@ -37,15 +35,7 @@ const jsonLd = [
 >
   <div class="wrap" style="padding-block: 2rem;">
     <MonthlyPollApp client:only="react" window={pollWindow} />
-    <section class="glass faq" id="faq" style="margin-top: 1.5rem;">
-      <h2>Frequently asked questions</h2>
-      {POLL_FAQ.map((item) => (
-        <details>
-          <summary>{item.q}</summary>
-          <p class="lede" set:html={item.a.replace(/(https:\/\/[^\s]+)/g, '<a href="$1" rel="noopener">$1</a>')} />
-        </details>
-      ))}
-    </section>
+    <Faq items={POLL_FAQ} />
     <noscript>
       <p class="lede">Share: {POLL_URL} · {POLL_SOCIAL_COPY}</p>
     </noscript>

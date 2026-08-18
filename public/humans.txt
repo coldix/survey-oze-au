@@ -1,0 +1,11 @@
+/* TEAM */
+Chef: Colin Dixon
+Contact: col@dixon.au
+Site: https://oze.au
+
+/* SITE */
+Last update: 2026-08-18
+Language: en-AU
+Standards: HTML5, Astro, JSON-LD
+Host: Cloudflare Workers + D1
+Canonical: https://survey.oze.net.au

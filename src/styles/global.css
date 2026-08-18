@@ -46,12 +46,13 @@ button, input, textarea { font: inherit; }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   min-height: 4rem;
   gap: 1rem;
 }
 .brand { color: var(--ink); text-decoration: none; font-weight: 700; letter-spacing: -.02em; }
 .brand span { color: var(--accent); }
-.site-header nav, .site-footer nav { display: flex; gap: 1rem; }
+.site-header nav, .site-footer nav { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
 .site-header a, .site-footer a { color: var(--soft); text-decoration: none; font-size: .92rem; }
 .site-header a:hover, .site-footer a:hover { color: var(--accent); }
 .theme-btn {
@@ -251,6 +252,7 @@ html[data-theme='light'] .dnd-item.swatch-brown { background: #7a4218; color: #f
   padding: .8rem 1rem;
   background: color-mix(in srgb, var(--sun) 12%, transparent);
 }
+.faq { margin-top: 1.5rem; }
 .faq details { border-top: 1px solid var(--line); padding: .85rem 0; }
 .faq summary { cursor: pointer; font-weight: 700; }
 .faq details p { margin: .6rem 0 0; }

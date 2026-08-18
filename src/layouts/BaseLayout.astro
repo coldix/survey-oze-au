@@ -6,10 +6,18 @@ interface Props {
   title?: string;
   description?: string;
   jsonLd?: unknown;
+  robots?: string;
 }
 
-const { title = `${SITE.name} — ${SITE.tagline}`, description = SITE.description, jsonLd } = Astro.props;
+const {
+  title = `${SITE.name} — ${SITE.tagline}`,
+  description = SITE.description,
+  jsonLd,
+  robots = 'index, follow, max-image-preview:large',
+} = Astro.props;
 const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', SITE.url);
+const ogImage = new URL(SITE.ogImage, SITE.url);
+const jsonLdBlocks = jsonLd == null ? [] : Array.isArray(jsonLd) ? jsonLd : [jsonLd];
 ---
 <!doctype html>
 <html lang="en-AU">
@@ -26,20 +34,33 @@ const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', SITE.url
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="author" content={SITE.author} />
+    <meta name="robots" content={robots} />
+    <meta name="theme-color" content="#08121a" />
     <link rel="canonical" href={canonical} />
     <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM guide" />
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+    <link rel="author" href="/humans.txt" />
+    <link rel="icon" href="/images/oze-logo.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/images/oze-logo.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE.name} />
     <meta property="og:locale" content="en_AU" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={new URL('/images/oze-logo.png', SITE.url)} />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${SITE.name} — ${SITE.tagline}`} />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    {jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <meta name="twitter:image" content={ogImage} />
+    {jsonLdBlocks.map((block) => (
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(block)} />
+    ))}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -47,6 +68,8 @@ const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', SITE.url
       <div class="wrap header-inner">
         <a class="brand" href="/">survey.<span>oze.au</span></a>
         <nav>
+          <a href="/s/monthly-poll">Poll</a>
+          <a href="/s/money">Money</a>
           <a href="https://oze.au">oze.au</a>
           <button class="theme-btn" type="button" data-theme-toggle>Theme</button>
         </nav>
@@ -58,9 +81,13 @@ const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', SITE.url
     <footer class="site-footer">
       <div class="wrap footer-bottom">
         <p class="footer-meta">
-          © {new Date().getFullYear()} Colin Dixon
+          © {new Date().getFullYear()} {SITE.author}
           <span aria-hidden="true"> · </span>
-          <a href="mailto:col@dixon.au">col@dixon.au</a>
+          <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+          <span aria-hidden="true"> · </span>
+          <a href="/s/monthly-poll">Poll</a>
+          <span aria-hidden="true"> · </span>
+          <a href="/s/money">Money</a>
         </p>
         <a class="design-credit" href="https://oze.au" rel="noopener">
           <span class="design-credit-text">Website design</span>

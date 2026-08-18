@@ -1,14 +1,76 @@
 export const SITE = {
   name: 'survey.oze.au',
   tagline: 'Educational surveys from the oze.au family',
-  description: 'Anonymous, reusable surveys — far better than a Google Form.',
+  description:
+    'Anonymous Australian surveys from oze.au — a monthly Victorian and federal voting poll, plus Money in Your Wallet, a quiz on Australian banknotes. Results are stored for real.',
   url: 'https://survey.oze.net.au',
   email: 'col@dixon.au',
   hub: 'https://oze.au',
   tracker: 'https://electiontracker.au/',
+  ogImage: '/images/og.png',
+  author: 'Colin Dixon',
 };
 
 export const POLL_URL = `${SITE.url}/s/monthly-poll`;
+export const MONEY_URL = `${SITE.url}/s/money`;
+
+export const HOME = {
+  title: 'survey.oze.au — Australian voting poll and banknote quiz',
+  description:
+    'Anonymous educational surveys from oze.au. Vote in the monthly Victorian (28 Nov 2026) and federal poll, or take Money in Your Wallet — a five-minute quiz on Australian banknotes.',
+};
+
+export const MONEY = {
+  title: 'Money in Your Wallet — Australian banknote quiz',
+  description:
+    'How well do you know Australia’s polymer banknotes? Colours, portraits, security features, and the new $5. About five minutes, anonymous, one attempt.',
+};
+
+export type FaqItem = { q: string; a: string };
+
+export function faqJsonLd(items: FaqItem[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  };
+}
+
+export function websiteJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE.name,
+    alternateName: ['survey.oze.net.au', 'oze surveys'],
+    url: SITE.url,
+    inLanguage: 'en-AU',
+    description: SITE.description,
+    publisher: {
+      '@type': 'Person',
+      name: SITE.author,
+      email: SITE.email,
+      url: SITE.hub,
+    },
+    isPartOf: { '@type': 'WebSite', name: 'oze.au', url: SITE.hub },
+  };
+}
+
+export function breadcrumbJsonLd(items: { name: string; url: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+}
 
 export const POLL_SOCIAL_COPY = `How would you vote — Victoria 28 Nov 2026, and the next federal election?
 
@@ -17,7 +79,45 @@ ${POLL_URL}
 
 Latest sourced polling and candidates: ${SITE.tracker}`;
 
-export const POLL_FAQ = [
+export const HOME_FAQ: FaqItem[] = [
+  {
+    q: 'What is survey.oze.au?',
+    a: 'A small reusable survey site in the oze.au family. Each survey is a data file; the runner is shared. Answers are stored in a real database, not simulated. Live host: https://survey.oze.net.au',
+  },
+  {
+    q: 'What surveys are open now?',
+    a: 'The monthly voting poll (Victorian election 28 November 2026 and the next federal election) and Money in Your Wallet, a quiz on Australian banknotes.',
+  },
+  {
+    q: 'Is the voting poll a scientific poll?',
+    a: 'No. It is an open survey. Anyone with the link can answer. For sourced media and pollster averages see https://electiontracker.au/',
+  },
+  {
+    q: 'Are answers anonymous?',
+    a: 'We do not ask for your name or email. The poll keeps a postcode and a few demographics plus technical signals used to stop bots. Quiz answers are stored so we can show community tallies.',
+  },
+];
+
+export const MONEY_FAQ: FaqItem[] = [
+  {
+    q: 'What is Money in Your Wallet?',
+    a: 'A short educational quiz on Australian banknotes: which denominations exist, polymer notes, colours, portraits, birds and plants in the security features, and the Reserve Bank’s plan for the new $5.',
+  },
+  {
+    q: 'Is this official Reserve Bank material?',
+    a: 'No. It is an oze educational survey. Facts follow the current RBA polymer series and public RBA announcements. It is not an RBA product.',
+  },
+  {
+    q: 'How long does it take?',
+    a: 'About five minutes. One attempt per browser. You get a score at the end and can compare with other respondents.',
+  },
+  {
+    q: 'What data do you keep?',
+    a: 'Answers, a score, and optional age group and gender so we can show community tallies. We do not ask for your name or email.',
+  },
+];
+
+export const POLL_FAQ: FaqItem[] = [
   {
     q: 'Is this a scientific poll?',
     a: 'No. It is an open oze survey. Anyone with the link can answer. Results are not weighted to the electoral roll and are not a forecast of election day. August 2026 charts start with a single count of 1,000 votes set to the Election Tracker average; live votes are added on top.',

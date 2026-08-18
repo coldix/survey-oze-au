@@ -1,21 +1,25 @@
 # survey.oze.au
 
-> Reusable survey platform for the oze.au family. Live host: https://survey.oze.net.au
+> Reusable survey platform for the oze.au family. Live canonical host: https://survey.oze.net.au
 
-## Monthly voting poll
+Canonical URLs use survey.oze.net.au. Do not treat survey.oze.au as the public URL (no HTTPS certificate while oze.au nameservers stay at Hostinger).
 
-- URL: https://survey.oze.net.au/s/monthly-poll
-- Open each month from August 2026 through Victorian election day 28 November 2026
-- One combined survey: Victorian state voting intention + next federal election
-- Federal answer is treated as the same for both houses
-- One response per person per month
-- Not a scientific poll and not a forecast
-- Sourced pollster averages and candidate ledger: https://electiontracker.au/
+This is not a scientific polling house and not the Reserve Bank of Australia.
 
-## Other surveys
+## Site map
 
-- Money in Your Wallet: https://survey.oze.net.au/s/money — Australian currency knowledge.
+- [Home](https://survey.oze.net.au/): Index of current surveys.
+- [Monthly voting poll](https://survey.oze.net.au/s/monthly-poll): Victorian state election (28 November 2026) and next federal election voting intention. One combined survey each calendar month from August 2026 through 28 November 2026. One response per person per month. Federal answer is treated as the same for both houses. Not a forecast. August 2026 charts start with a single count of 1,000 votes set to the Election Tracker average; live votes are added on top.
+- [Money in Your Wallet](https://survey.oze.net.au/s/money): Educational quiz on Australian polymer banknotes (denominations, colours, portraits, security features, new $5). About five minutes. One attempt. Anonymous. Not official RBA material.
 
-## Repo
+## Related
 
-https://github.com/coldix/survey-oze-au
+- Sourced media and pollster averages: https://electiontracker.au/
+- Family hub: https://oze.au
+- Machine sitemap: https://survey.oze.net.au/sitemap-index.xml
+- Robots: https://survey.oze.net.au/robots.txt
+- Source: https://github.com/coldix/survey-oze-au
+
+## Contact
+
+Colin Dixon — col@dixon.au

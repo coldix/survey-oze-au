@@ -1,0 +1,19 @@
+---
+import type { FaqItem } from '../lib/site';
+
+interface Props {
+  items: FaqItem[];
+  heading?: string;
+}
+
+const { items, heading = 'Frequently asked questions' } = Astro.props;
+---
+<section class="glass faq" id="faq">
+  <h2>{heading}</h2>
+  {items.map((item) => (
+    <details>
+      <summary>{item.q}</summary>
+      <p class="lede" set:html={item.a.replace(/(https:\/\/[^\s]+)/g, '<a href="$1" rel="noopener">$1</a>')} />
+    </details>
+  ))}
+</section>
