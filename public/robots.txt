@@ -13,4 +13,5 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://survey.oze.au/sitemap.xml
+Sitemap: https://survey.oze.net.au/sitemap-index.xml
+# AI guide: https://survey.oze.net.au/llms.txt

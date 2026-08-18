@@ -1,0 +1,44 @@
+; Zone file for oze.au
+; Generated on 2026-08-18 05:45:28 UTC
+
+$ORIGIN oze.au
+$TTL 3600
+
+@                              3600 IN SOA   ns1.dns-parking.com. dns.hostinger.com. 2025010800 10000 2400 604800 600
+@                              3600 IN ALIAS oze.au.cdn.hstgr.net.
+@                              14400 IN MX    5 ALT1.ASPMX.L.GOOGLE.COM
+                               14400 IN MX    10 ALT4.ASPMX.L.GOOGLE.COM
+                               14400 IN MX    10 ALT3.ASPMX.L.GOOGLE.COM
+                               14400 IN MX    1 ASPMX.L.GOOGLE.COM
+                               14400 IN MX    5 ALT2.ASPMX.L.GOOGLE.COM
+@                              86400 IN NS    ns2.dns-parking.com.
+                               86400 IN NS    ns1.dns-parking.com.
+@                              3600 IN TXT   "google-site-verification=vlwGm-pVh7DxPiASI80r9GXicIsqvaXD-7-UBcxzso0"
+                               3600 IN TXT   "v=spf1 include:_spf.google.com ~all"
+acc                            1800 IN A     46.202.196.151
+acc                            1800 IN AAAA  2a02:4780:b:626:0:21c3:96ab:3
+apps                           300 IN ALIAS apps.oze.au.cdn.hstgr.net.
+art                            300 IN ALIAS art.oze.au.cdn.hstgr.net.
+bellwest                       1800 IN A     46.202.196.151
+bellwest                       1800 IN AAAA  2a02:4780:b:626:0:21c3:96ab:3
+bridge                         300 IN ALIAS bridge.oze.au.cdn.hstgr.net.
+calendar                       300 IN ALIAS calendar.oze.au.cdn.hstgr.net.
+calibr                         300 IN CNAME calibr-prod-107e2.web.app.
+chrismatterson                 1800 IN A     46.202.196.151
+chrismatterson                 1800 IN AAAA  2a02:4780:b:626:0:21c3:96ab:3
+domains                        300 IN ALIAS domains.oze.au.cdn.hstgr.net.
+dots                           300 IN ALIAS dots.oze.au.cdn.hstgr.net.
+ftp                            1800 IN A     46.202.196.151
+google._domainkey              14400 IN TXT   "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhwgrbtBdb1QXiLC3KlE2ANs+Hc+MRAc+pvKgZkxvmoBp5+K9NVucwB8oFMyWISdePugp7WpOuOhbBsMfCNSi1dolNxDTwK8fCKmEIgopRDPvN5Pm6rwfdpUbdhu67q2JrggJ21YD6woYMMwGW5e1YMbrcpT6WX4K9iNMGRJlhCn6pg6Lbu6C4JRXN9cAZpgrvXM56me+x15Mgd8atfm86gynQ72mP+RzgxZdTeyqC/y0iaP2PGgTH4oDoyvSkqhP6rUA63EwvraNZsStRIwQDMMT+8fS8tu6fSxbEzOYM0HvHIQwr7cGXLEGWdu0dIJ2bDIwD9ArQQI9ZPzzB8CxKQIDAQAB"
+hsa                            3600 IN A     199.36.158.100
+hsa                            300 IN TXT   "hosting-site=house-sitting-australia"
+justsplits                     1800 IN A     46.202.196.151
+justsplits                     1800 IN AAAA  2a02:4780:b:626:0:21c3:96ab:3
+ksrh                           1800 IN A     46.202.196.151
+ksrh                           1800 IN AAAA  2a02:4780:b:626:0:21c3:96ab:3
+music                          300 IN ALIAS music.oze.au.cdn.hstgr.net.
+ppp                            300 IN ALIAS ppp.oze.au.cdn.hstgr.net.
+tunia                          1800 IN A     46.202.196.151
+tunia                          1800 IN AAAA  2a02:4780:b:626:0:21c3:96ab:3
+wallplanner                    300 IN ALIAS wallplanner.oze.au.cdn.hstgr.net.
+www                            300 IN CNAME www.oze.au.cdn.hstgr.net.

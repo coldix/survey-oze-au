@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SurveyRunner from '../../components/SurveyRunner';
+import { getSurvey, listSurveys } from '../../lib/surveys';
+
+export function getStaticPaths() {
+  return listSurveys().map((survey) => ({ params: { slug: survey.slug } }));
+}
+
+const survey = getSurvey(Astro.params.slug ?? '');
+if (!survey) return Astro.redirect('/404');
+---
+<BaseLayout title={`${survey.title} — survey.oze.au`} description={survey.subtitle}>
+  <div class="wrap" style="padding-block: 2rem;">
+    <SurveyRunner client:load survey={survey} />
+  </div>
+</BaseLayout>

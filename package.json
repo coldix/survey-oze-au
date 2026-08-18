@@ -1,0 +1,30 @@
+{
+  "name": "@coldix/survey-oze-au",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reusable survey platform for survey.oze.au — Astro + Cloudflare Worker + D1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "cf:types": "wrangler types",
+    "cf:dev": "npm run build && wrangler dev",
+    "db:local": "wrangler d1 migrations apply survey-responses --local"
+  },
+  "dependencies": {
+    "@astrojs/react": "^6.0.2",
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^7.2.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.122.0"
+  }
+}

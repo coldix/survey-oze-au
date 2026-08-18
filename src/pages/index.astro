@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { listSurveys } from '../lib/surveys';
+
+const surveys = listSurveys();
+---
+<BaseLayout>
+  <div class="wrap" style="padding-block: 2.4rem;">
+    <section class="hero">
+      <p class="phase-tag">oze.au surveys</p>
+      <h1>Ask better questions.</h1>
+      <p class="lede">Anonymous educational surveys. Each one is a data file; the runner is shared. Results are stored for real, not simulated.</p>
+    </section>
+    <div class="survey-list">
+      <a class="survey-card" href="/s/monthly-poll">
+        <h2>Monthly voting poll</h2>
+        <p class="lede">Vic 2026 + next federal election · each month until 28 Nov 2026</p>
+      </a>
+      {surveys.map((survey) => (
+        <a class="survey-card" href={`/s/${survey.slug}`}>
+          <h2>{survey.title}</h2>
+          <p class="lede">{survey.subtitle} · about {survey.minutes} minutes</p>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

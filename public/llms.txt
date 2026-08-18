@@ -1,0 +1,21 @@
+# survey.oze.au
+
+> Reusable survey platform for the oze.au family. Live host: https://survey.oze.net.au
+
+## Monthly voting poll
+
+- URL: https://survey.oze.net.au/s/monthly-poll
+- Open each month from August 2026 through Victorian election day 28 November 2026
+- One combined survey: Victorian state voting intention + next federal election
+- Federal answer is treated as the same for both houses
+- One response per person per month
+- Not a scientific poll and not a forecast
+- Sourced pollster averages and candidate ledger: https://electiontracker.au/
+
+## Other surveys
+
+- Money in Your Wallet: https://survey.oze.net.au/s/money — Australian currency knowledge.
+
+## Repo
+
+https://github.com/coldix/survey-oze-au

@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MonthlyPollApp from '../../components/MonthlyPollApp';
+import { describePollWindow } from '../../lib/poll-window';
+import { POLL_FAQ, POLL_SOCIAL_COPY, POLL_URL, SITE } from '../../lib/site';
+
+const pollWindow = describePollWindow();
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Monthly Australian voting poll',
+    url: POLL_URL,
+    inLanguage: 'en-AU',
+    description: 'Monthly oze survey of Victorian (28 Nov 2026) and federal voting intention. Not a scientific poll.',
+    isPartOf: { '@type': 'WebSite', name: SITE.name, url: SITE.url },
+    about: [
+      { '@type': 'Event', name: 'Victorian state election 2026', startDate: '2026-11-28', eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode' },
+    ],
+    relatedLink: SITE.tracker,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: POLL_FAQ.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  },
+];
+---
+<BaseLayout
+  title="Monthly voting poll — Victoria 2026 and federal 2028"
+  description="How would you vote at the Victorian election on 28 November 2026 and the next federal election? Monthly oze survey, one vote per person. Not a scientific poll. Latest sourced polling at electiontracker.au."
+  jsonLd={jsonLd}
+>
+  <div class="wrap" style="padding-block: 2rem;">
+    <MonthlyPollApp client:only="react" window={pollWindow} />
+    <section class="glass faq" id="faq" style="margin-top: 1.5rem;">
+      <h2>Frequently asked questions</h2>
+      {POLL_FAQ.map((item) => (
+        <details>
+          <summary>{item.q}</summary>
+          <p class="lede" set:html={item.a.replace(/(https:\/\/[^\s]+)/g, '<a href="$1" rel="noopener">$1</a>')} />
+        </details>
+      ))}
+    </section>
+    <noscript>
+      <p class="lede">Share: {POLL_URL} · {POLL_SOCIAL_COPY}</p>
+    </noscript>
+  </div>
+</BaseLayout>

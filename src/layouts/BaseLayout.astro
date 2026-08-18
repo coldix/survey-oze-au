@@ -1,0 +1,79 @@
+---
+import { SITE } from '../lib/site';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  jsonLd?: unknown;
+}
+
+const { title = `${SITE.name} — ${SITE.tagline}`, description = SITE.description, jsonLd } = Astro.props;
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', SITE.url);
+---
+<!doctype html>
+<html lang="en-AU">
+  <head>
+    <script is:inline>
+      (() => {
+        const saved = localStorage.getItem('oze-theme');
+        document.documentElement.dataset.theme = saved === 'light' || saved === 'dark'
+          ? saved
+          : 'dark';
+      })();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM guide" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content="en_AU" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL('/images/oze-logo.png', SITE.url)} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <a class="brand" href="/">survey.<span>oze.au</span></a>
+        <nav>
+          <a href="https://oze.au">oze.au</a>
+          <button class="theme-btn" type="button" data-theme-toggle>Theme</button>
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="wrap footer-bottom">
+        <p class="footer-meta">
+          © {new Date().getFullYear()} Colin Dixon
+          <span aria-hidden="true"> · </span>
+          <a href="mailto:col@dixon.au">col@dixon.au</a>
+        </p>
+        <a class="design-credit" href="https://oze.au" rel="noopener">
+          <span class="design-credit-text">Website design</span>
+          <img class="design-credit-logo" src="/images/oze-logo.png" alt="oze.au" width="88" height="41" loading="lazy" decoding="async" />
+        </a>
+      </div>
+    </footer>
+    <script is:inline>
+      document.querySelector('[data-theme-toggle]')?.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem('oze-theme', next);
+      });
+    </script>
+  </body>
+</html>
