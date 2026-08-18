@@ -56,6 +56,7 @@ npx wrangler deploy
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — account, D1, deploy
 - [docs/POLL.md](docs/POLL.md) — monthly voting poll
 - [docs/DNS.md](docs/DNS.md) — Hostinger + Cloudflare hostnames
+- [docs/SEO.md](docs/SEO.md) — SEO and AI (what is live, what is not)
 
 ## Repo
 
