@@ -7,7 +7,7 @@ export const SITE = {
   email: 'col@dixon.au',
   hub: 'https://oze.au',
   tracker: 'https://electiontracker.au/',
-  ogImage: '/images/og.png',
+  ogImage: '/images/og.jpg',
   author: 'Colin Dixon',
 };
 

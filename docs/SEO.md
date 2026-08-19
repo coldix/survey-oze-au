@@ -13,7 +13,7 @@ Canonical host is `survey.oze.net.au`. `survey.oze.au` CNAME exists but has no C
 - `robots`: `index, follow, max-image-preview:large` (404 is `noindex, follow`)
 - Canonical URL on `https://survey.oze.net.au` (`trailingSlash: never`)
 - Author, theme-color, favicon, apple-touch-icon, web manifest
-- Open Graph: type, site_name, locale `en_AU`, title, description, url, **1200×630** `/images/og.png`
+- Open Graph: type, site_name, locale `en_AU`, title, description, url, **1200×630** `/images/og.jpg`
 - Twitter `summary_large_image`
 - `<link rel="sitemap">` → `/sitemap-index.xml`
 - `<link rel="alternate">` → `/llms.txt`
@@ -55,7 +55,7 @@ Poll sitemap priority `1.0` daily; home `0.9` weekly; other surveys `0.8` monthl
 
 ### Social
 
-Share block + copy-to-clipboard on the poll page (`POLL_SOCIAL_COPY`). OG card is `public/images/og.png`.
+Share block + copy-to-clipboard on the poll page (`POLL_SOCIAL_COPY`). OG card is `public/images/og.jpg`.
 
 ## Not done (honest gaps)
 
