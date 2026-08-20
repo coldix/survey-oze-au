@@ -5,10 +5,10 @@
   "type": "module",
   "description": "Reusable survey platform for survey.oze.au — Astro + Cloudflare Worker + D1",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "node scripts/write-build-meta.mjs && astro dev",
+    "build": "node scripts/write-build-meta.mjs && astro build",
     "preview": "astro preview",
-    "check": "astro check",
+    "check": "node scripts/write-build-meta.mjs && astro check",
     "cf:types": "wrangler types",
     "cf:dev": "npm run build && wrangler dev",
     "db:local": "wrangler d1 migrations apply survey-responses --local",

@@ -10,5 +10,7 @@ dist/
 .wrangler/
 worker-configuration.d.ts
 src/generated/
+src/data/build-meta.json
+public/build-meta.json
 scripts/seed-parts/
 scripts/seed-august-2026.sql

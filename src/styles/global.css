@@ -25,8 +25,10 @@ html[data-theme='light'] {
 }
 
 * { box-sizing: border-box; }
-html { color: var(--ink); background: var(--canvas); font-family: var(--font); }
-body { margin: 0; min-height: 100dvh; }
+html { color: var(--ink); background: var(--canvas); font-family: var(--font); color-scheme: dark; }
+html[data-theme='light'] { color-scheme: light; }
+body { margin: 0; min-height: 100dvh; display: flex; flex-direction: column; }
+main { flex: 1; }
 a { color: var(--accent); }
 img { max-width: 100%; display: block; }
 button, input, textarea { font: inherit; }
@@ -36,33 +38,75 @@ button, input, textarea { font: inherit; }
 .skip-link { position: absolute; left: -999px; }
 .skip-link:focus { left: 1rem; top: 1rem; background: var(--glass); padding: .5rem 1rem; }
 
-.site-header, .site-footer {
-  border-color: var(--line);
-}
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--canvas) 88%, transparent);
   backdrop-filter: blur(14px);
 }
 .header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  min-height: 4rem;
-  gap: 1rem;
+  flex-wrap: nowrap;
+  min-height: 4.1rem;
+  gap: .75rem 1.25rem;
 }
-.brand { color: var(--ink); text-decoration: none; font-weight: 700; letter-spacing: -.02em; }
-.brand span { color: var(--accent); }
-.site-header nav, .site-footer nav { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
-.site-header a, .site-footer a { color: var(--soft); text-decoration: none; font-size: .92rem; }
-.site-header a:hover, .site-footer a:hover { color: var(--accent); }
-.theme-btn {
-  background: transparent;
-  border: 1px solid var(--line);
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .65rem;
   color: var(--ink);
+  text-decoration: none;
+  min-width: 0;
+}
+.brand-mark { height: 1.55rem; width: auto; flex: none; }
+.brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+.brand-text strong { font-size: .98rem; letter-spacing: -.02em; font-weight: 700; }
+.brand span { color: var(--accent); }
+.brand-sub { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--soft); }
+.header-end { display: flex; flex-wrap: nowrap; align-items: center; gap: .55rem .85rem; margin-left: auto; }
+.site-header nav { display: flex; flex-wrap: nowrap; align-items: center; gap: .15rem .85rem; }
+.site-header nav a {
+  color: var(--soft);
+  text-decoration: none;
+  font-size: .9rem;
+  font-weight: 600;
+  padding: .2rem 0;
+  border-bottom: 2px solid transparent;
+}
+.site-header nav a:hover { color: var(--ink); }
+.site-header nav a[aria-current='page'] { color: var(--ink); border-bottom-color: var(--accent); }
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  margin: 0;
+  padding: .28rem .7rem .28rem .55rem;
   border-radius: 999px;
-  padding: .35rem .8rem;
+  border: 1px solid var(--line);
+  background: var(--glass);
+  color: var(--ink);
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.2;
   cursor: pointer;
+  flex: none;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--ink); }
+.theme-icon { display: inline-flex; width: 1rem; height: 1rem; position: relative; }
+.theme-icon svg { position: absolute; inset: 0; width: 1rem; height: 1rem; }
+.icon-sun { display: none; }
+.icon-moon { display: block; }
+html[data-theme='dark'] .icon-sun { display: block; }
+html[data-theme='dark'] .icon-moon { display: none; }
+@media (max-width: 40rem) {
+  .theme-label { display: none; }
+  .brand-sub { display: none; }
+  .site-header nav a[href='https://oze.au'] { display: none; }
 }
 .site-footer {
   border-top: 1px solid var(--line);
@@ -78,7 +122,19 @@ button, input, textarea { font: inherit; }
   justify-content: space-between;
   gap: .75rem 1.5rem;
 }
-.footer-meta { margin: 0; line-height: 1.45; }
+.footer-meta { margin: 0; line-height: 1.55; }
+.meta-sep, .build-sep { margin: 0 .4rem; opacity: .45; }
+.build-stamp { font-variant-numeric: tabular-nums; }
+.build-label {
+  font-weight: 650;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-right: .3rem;
+  font-size: .72rem;
+}
+.build-ver { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .82rem; }
+.site-footer a { color: var(--soft); text-decoration: none; }
+.site-footer a:hover { color: var(--accent); }
 .design-credit {
   display: inline-flex;
   align-items: center;

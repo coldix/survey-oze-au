@@ -6,6 +6,7 @@ export const SITE = {
   url: 'https://survey.oze.net.au',
   email: 'col@dixon.au',
   hub: 'https://oze.au',
+  repo: 'https://github.com/coldix/survey-oze-au',
   tracker: 'https://electiontracker.au/',
   ogImage: '/images/og.jpg',
   author: 'Colin Dixon',

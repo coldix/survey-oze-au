@@ -1,5 +1,6 @@
 ---
 import { SITE } from '../lib/site';
+import buildMeta from '../data/build-meta.json';
 import '../styles/global.css';
 
 interface Props {
@@ -18,6 +19,15 @@ const {
 const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', SITE.url);
 const ogImage = new URL(SITE.ogImage, SITE.url);
 const jsonLdBlocks = jsonLd == null ? [] : Array.isArray(jsonLd) ? jsonLd : [jsonLd];
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const nav = [
+  { href: '/s/monthly-poll', label: 'Poll' },
+  { href: '/s/vic-issues', label: 'Issues' },
+  { href: '/s/money', label: 'Money' },
+];
+const versionLabel = buildMeta.version ?? 'dev';
+const builtAest = buildMeta.built_at_aest ?? null;
+const repoCommit = buildMeta.git_sha_full ? `${SITE.repo}/commit/${buildMeta.git_sha_full}` : SITE.repo;
 ---
 <!doctype html>
 <html lang="en-AU">
@@ -25,9 +35,10 @@ const jsonLdBlocks = jsonLd == null ? [] : Array.isArray(jsonLd) ? jsonLd : [jso
     <script is:inline>
       (() => {
         const saved = localStorage.getItem('oze-theme');
-        document.documentElement.dataset.theme = saved === 'light' || saved === 'dark'
+        const theme = saved === 'light' || saved === 'dark'
           ? saved
-          : 'dark';
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.dataset.theme = theme;
       })();
     </script>
     <meta charset="UTF-8" />
@@ -66,14 +77,28 @@ const jsonLdBlocks = jsonLd == null ? [] : Array.isArray(jsonLd) ? jsonLd : [jso
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
       <div class="wrap header-inner">
-        <a class="brand" href="/">survey.<span>oze.au</span></a>
-        <nav>
-          <a href="/s/monthly-poll">Poll</a>
-          <a href="/s/vic-issues">Issues</a>
-          <a href="/s/money">Money</a>
-          <a href="https://oze.au">oze.au</a>
-          <button class="theme-btn" type="button" data-theme-toggle>Theme</button>
-        </nav>
+        <a class="brand" href="/">
+          <img class="brand-mark" src="/images/oze-logo.png" alt="" width="34" height="16" decoding="async" />
+          <span class="brand-text">
+            <strong>survey.<span>oze.au</span></strong>
+            <span class="brand-sub">by OZE</span>
+          </span>
+        </a>
+        <div class="header-end">
+          <nav aria-label="Site">
+            {nav.map((item) => (
+              <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>{item.label}</a>
+            ))}
+            <a href={SITE.hub} rel="noopener">oze.au</a>
+          </nav>
+          <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch theme" title="Toggle light / dark theme">
+            <span class="theme-icon" aria-hidden="true">
+              <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+              <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3a7 7 0 1 0 11.5 11.5z"></path></svg>
+            </span>
+            <span class="theme-label" data-theme-label>Dark</span>
+          </button>
+        </div>
       </div>
     </header>
     <main id="main">
@@ -82,28 +107,51 @@ const jsonLdBlocks = jsonLd == null ? [] : Array.isArray(jsonLd) ? jsonLd : [jso
     <footer class="site-footer">
       <div class="wrap footer-bottom">
         <p class="footer-meta">
-          © {new Date().getFullYear()} {SITE.author}
-          <span aria-hidden="true"> · </span>
+          <span>© {new Date().getFullYear()} {SITE.author}</span>
+          <span class="meta-sep" aria-hidden="true"> · </span>
           <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
-          <span aria-hidden="true"> · </span>
-          <a href="/s/monthly-poll">Poll</a>
-          <span aria-hidden="true"> · </span>
-          <a href="/s/vic-issues">Issues</a>
-          <span aria-hidden="true"> · </span>
-          <a href="/s/money">Money</a>
+          <span class="meta-sep" aria-hidden="true"> · </span>
+          <span class="build-stamp">
+            <span class="build-label">Version</span>
+            <a class="build-ver" href={repoCommit} rel="noopener" title="Git commit for this deploy">{versionLabel}</a>
+            {builtAest && (
+              <>
+                <span class="build-sep" aria-hidden="true"> · </span>
+                <time datetime={buildMeta.built_at_utc}>{builtAest}</time>
+              </>
+            )}
+          </span>
         </p>
-        <a class="design-credit" href="https://oze.au" rel="noopener">
+        <a class="design-credit" href={SITE.hub} rel="noopener">
           <span class="design-credit-text">Website design</span>
           <img class="design-credit-logo" src="/images/oze-logo.png" alt="oze.au" width="88" height="41" loading="lazy" decoding="async" />
         </a>
       </div>
     </footer>
     <script is:inline>
-      document.querySelector('[data-theme-toggle]')?.addEventListener('click', () => {
-        const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
-        document.documentElement.dataset.theme = next;
-        localStorage.setItem('oze-theme', next);
-      });
+      (function () {
+        var KEY = 'oze-theme';
+        var btn = document.getElementById('theme-toggle');
+        var meta = document.querySelector('meta[name="theme-color"]');
+        function current() {
+          var t = document.documentElement.getAttribute('data-theme');
+          if (t === 'light' || t === 'dark') return t;
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        function apply(theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+          try { localStorage.setItem(KEY, theme); } catch (e) {}
+          if (meta) meta.setAttribute('content', theme === 'light' ? '#eef4f8' : '#08121a');
+          if (!btn) return;
+          var next = theme === 'dark' ? 'light' : 'dark';
+          var label = btn.querySelector('[data-theme-label]');
+          if (label) label.textContent = next === 'dark' ? 'Dark' : 'Light';
+          btn.setAttribute('aria-label', 'Switch to ' + next + ' theme');
+          btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+        }
+        apply(current());
+        if (btn) btn.addEventListener('click', function () { apply(current() === 'dark' ? 'light' : 'dark'); });
+      })();
     </script>
   </body>
 </html>
