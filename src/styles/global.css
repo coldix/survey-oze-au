@@ -337,7 +337,17 @@ fieldset.options legend { font-weight: 700; margin-bottom: .5rem; }
 }
 .scale-row label.on, .scale-row label:has(input:checked) {
   border-color: var(--accent);
+  border-width: 2px;
+  font-weight: 800;
   background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+.scale-row label:has(input:checked)::after {
+  content: '✓';
+  position: absolute;
+  top: .12rem;
+  right: .28rem;
+  font-size: .7rem;
+  color: var(--accent);
 }
 .scale-row label:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 .scale-row input {
@@ -347,8 +357,22 @@ fieldset.options legend { font-weight: 700; margin-bottom: .5rem; }
   overflow: hidden;
   clip: rect(0 0 0 0);
 }
-.scale-row abbr { font-size: .62rem; font-weight: 600; color: var(--soft); text-decoration: none; text-align: center; line-height: 1.15; }
-@media (max-width: 40rem) { .scale-row abbr { display: none; } }
+.rate-foot {
+  position: sticky;
+  bottom: 0;
+  margin-top: 1rem;
+  padding: .75rem 0 .2rem;
+  background: color-mix(in srgb, var(--canvas) 88%, transparent);
+  backdrop-filter: blur(10px);
+}
+.blind-grid .headline-card { min-height: 4.2rem; }
+.reveal-picks { list-style: none; margin: 1rem 0; padding: 0; display: grid; gap: .65rem; }
+.reveal-picks li { display: grid; gap: .15rem; padding-bottom: .55rem; border-bottom: 1px solid var(--line); }
+.reveal-picks em { color: var(--accent); font-style: normal; font-weight: 700; }
+.reveal-wait { opacity: .4; }
+.reveal-in { animation: fade-in .45s ease; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(.2rem); } to { opacity: 1; transform: none; } }
+.weight-toggle { display: flex; gap: .55rem; align-items: center; margin: .8rem 0; font-weight: 600; }
 .tie-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
 .tie-list .option { width: 100%; }
 .tie-list .option[aria-pressed='true'] {

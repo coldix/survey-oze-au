@@ -121,15 +121,19 @@ export const MONEY_FAQ: FaqItem[] = [
 export const ISSUES_FAQ: FaqItem[] = [
   {
     q: 'Is this a scientific poll or a scorecard?',
-    a: 'No. It is an open oze survey. Anyone with the link can answer, including people outside Victoria and overseas. Results are not weighted. Party picks are your view of the sourced headlines — Election Tracker does not rank which party has the best policy.',
+    a: 'No. It is an open oze survey. Anyone with the link can answer, including people outside Victoria and overseas. The pie counts your own taps. Election Tracker does not rank which party has the best policy, and this is not a voting recommendation.',
   },
   {
     q: 'What is being asked?',
-    a: 'How much each of the 15 Victorian election issues matters to your vote (1–5), then whose sourced policy is closest — in your view — on your top 3 issues. Headlines come from the Election Tracker policy matrix.',
+    a: 'How much each of 14 Victorian election issues matters to your vote (1–5), then which of four sourced statements comes closest to your view on 10 of those issues — with party names hidden until the end.',
   },
   {
-    q: 'Why only my top 3 for the party question?',
-    a: 'Asking on all 15 would make the survey too long. Crowd splits are reported among people who put that issue in their top 3, not among everyone who rated it highly.',
+    q: 'Why only 10 comparisons?',
+    a: 'We compare the 10 issues where the Greens, Labor, Coalition and One Nation have said clearly different things, and where Victoria is a real decision-maker. Immigration is federal, so it is not in this survey. Firearms, corruption, debt and native forestry are still on the rating list, not the comparison round.',
+  },
+  {
+    q: 'What does the blind method measure?',
+    a: 'What people find persuasive when a policy is stripped of its party label. It measures the appeal of a stated claim — not whether the claim is achievable, costed, or likely to be delivered. For sourced detail see https://electiontracker.au/elections/vic/2026/parties/matrix',
   },
   {
     q: 'Who can answer, and how are results split?',
@@ -138,10 +142,6 @@ export const ISSUES_FAQ: FaqItem[] = [
   {
     q: 'How often can I answer?',
     a: 'Once per browser per calendar month, from August 2026 through election day 28 November 2026. Friends on the same wifi can each take it.',
-  },
-  {
-    q: 'Where are the party policies from?',
-    a: 'Sourced headlines on the Election Tracker matrix: https://electiontracker.au/elections/vic/2026/parties/matrix',
   },
 ];
 

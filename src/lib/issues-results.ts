@@ -1,15 +1,17 @@
-import {
-  CROWD_RANK_MIN,
-  ISSUE_SLUGS,
-  PICK_OPTIONS,
-  PICK_SPLIT_MIN,
-  type IssuesAnswers,
-  type PickId,
-} from './issues-survey';
+import { CROWD_RANK_MIN, PICK_SPLIT_MIN, RATE_SLUGS, COMPARE_SLUGS } from './issues-survey';
 
-export type IssuesRow = {
+
+export type RatingRow = {
   state: string | null;
-  answers: IssuesAnswers;
+  ratings: Record<string, number>;
+};
+
+export type SqlPickRow = {
+  issue_slug: string;
+  chosen: string;
+  n: number;
+  weight: number;
+  vic: number;
 };
 
 export type IssueCrowd = {
@@ -17,8 +19,8 @@ export type IssueCrowd = {
   nRated: number;
   mean: number | null;
   rank: number | null;
-  top3n: number;
-  pickCounts: Record<PickId, number>;
+  nPicks: number;
+  pickCounts: Record<string, number>;
   showPicks: boolean;
 };
 
@@ -34,40 +36,51 @@ export type IssuesMonthResults = {
   victoria: IssuesView;
 };
 
-const EMPTY_PICKS = (): Record<PickId, number> =>
-  Object.fromEntries(PICK_OPTIONS.map((option) => [option.id, 0])) as Record<PickId, number>;
-
-export function isVictoriaRow(row: IssuesRow): boolean {
-  return row.state === 'VIC';
+function meanMap(rows: RatingRow[]): Map<string, { n: number; mean: number | null }> {
+  const sums = new Map<string, { n: number; total: number }>();
+  for (const slug of RATE_SLUGS) sums.set(slug, { n: 0, total: 0 });
+  for (const row of rows) {
+    for (const slug of RATE_SLUGS) {
+      const value = row.ratings[slug];
+      if (typeof value !== 'number') continue;
+      const bucket = sums.get(slug)!;
+      bucket.n += 1;
+      bucket.total += value;
+    }
+  }
+  return new Map(
+    [...sums.entries()].map(([slug, bucket]) => [
+      slug,
+      { n: bucket.n, mean: bucket.n ? bucket.total / bucket.n : null },
+    ]),
+  );
 }
 
-function viewFor(rows: IssuesRow[]): IssuesView {
+function viewFor(rows: RatingRow[], pickRows: SqlPickRow[], vicOnly: boolean): IssuesView {
   const n = rows.length;
   const showRank = n >= CROWD_RANK_MIN;
-  const issues: IssueCrowd[] = ISSUE_SLUGS.map((slug) => {
-    const scores: number[] = [];
-    const pickCounts = EMPTY_PICKS();
-    let top3n = 0;
-    for (const row of rows) {
-      const score = row.answers.ratings[slug];
-      if (typeof score === 'number') scores.push(score);
-      if (row.answers.top3.includes(slug)) {
-        top3n += 1;
-        const pick = row.answers.picks[slug];
-        if (pick && pick in pickCounts) pickCounts[pick] = (pickCounts[pick] ?? 0) + 1;
-      }
+  const means = meanMap(rows);
+  const issues: IssueCrowd[] = RATE_SLUGS.map((slug) => {
+    const stats = means.get(slug) ?? { n: 0, mean: null };
+    const pickCounts: Record<string, number> = {};
+    let nPicks = 0;
+    for (const row of pickRows) {
+      if (row.issue_slug !== slug) continue;
+      const count = vicOnly ? row.vic : row.n;
+      if (!count) continue;
+      pickCounts[row.chosen] = (pickCounts[row.chosen] ?? 0) + count;
+      nPicks += count;
     }
     return {
       slug,
-      nRated: scores.length,
-      mean: scores.length ? scores.reduce((sum, value) => sum + value, 0) / scores.length : null,
+      nRated: stats.n,
+      mean: stats.mean,
       rank: null,
-      top3n,
+      nPicks,
       pickCounts,
-      showPicks: top3n >= PICK_SPLIT_MIN,
+      showPicks: COMPARE_SLUGS.includes(slug) && nPicks >= PICK_SPLIT_MIN,
     };
   });
-
   const order = [...issues].sort((a, b) => {
     const meanA = a.mean ?? -1;
     const meanB = b.mean ?? -1;
@@ -75,20 +88,20 @@ function viewFor(rows: IssuesRow[]): IssuesView {
     if (b.nRated !== a.nRated) return b.nRated - a.nRated;
     return a.slug.localeCompare(b.slug);
   });
-  if (showRank) {
-    order.forEach((item, index) => {
-      item.rank = index + 1;
-    });
-  }
-
+  if (showRank) order.forEach((item, index) => { item.rank = index + 1; });
   return { n, showRank, issues };
 }
 
-export function summariseIssuesMonth(month: string, rows: IssuesRow[]): IssuesMonthResults {
+export function summariseIssuesMonth(
+  month: string,
+  ratingRows: RatingRow[],
+  pickRows: SqlPickRow[],
+): IssuesMonthResults {
+  const vicRatings = ratingRows.filter((row) => row.state === 'VIC');
   return {
     month,
-    everywhere: viewFor(rows),
-    victoria: viewFor(rows.filter(isVictoriaRow)),
+    everywhere: viewFor(ratingRows, pickRows, false),
+    victoria: viewFor(vicRatings, pickRows, true),
   };
 }
 
@@ -97,3 +110,5 @@ export function crowdBlindSpot(view: IssuesView, top3: string[]): string | null 
   const ranked = [...view.issues].filter((item) => item.rank != null).sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
   return ranked.find((item) => !top3.includes(item.slug))?.slug ?? null;
 }
+
+

@@ -1,32 +1,29 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { PollWindow } from '../lib/poll-window';
 import { shuffle } from '../lib/shuffle';
-import { crowdBlindSpot, type IssuesMonthResults, type IssuesView } from '../lib/issues-results';
+import { crowdBlindSpot, type IssuesMonthResults } from '../lib/issues-results';
+import type { RevealPayload } from '../lib/issues-math';
+import type { BlindPickInput, LocationKind, Rating, RoundIssue } from '../lib/issues-survey';
+import IssuesPicksPie from './IssuesPicksPie';
 import {
   AGES,
   CROWD_RANK_MIN,
-  DISPLAY_PARTIES,
   ENROLLED,
-  ISSUES_SOCIAL_COPY,
   ISSUES_URL,
-  ISSUE_SLUGS,
+  COMPARE_SLUGS,
   LOCATIONS,
   MATRIX_URL,
   MONTHLY_POLL_URL,
-  PICK_OPTIONS,
-  PICK_SPLIT_MIN,
+  RATE_ISSUES,
+  RATE_SLUGS,
   RATING_LABELS,
   RATING_VALUES,
-  VIC_ISSUES,
   issueBySlug,
   ratingsComplete,
   rankedSlugs,
   top3Plan,
-  type IssuesAnswers,
-  type LocationKind,
-  type PickId,
-  type Rating,
 } from '../lib/issues-survey';
+import { PIE_LABELS, type PieShares } from '../lib/issues-math';
 
 type Step = 'you' | 'rate' | 'tie' | 'picks' | 'reveal';
 type CrowdKey = 'everywhere' | 'victoria';
@@ -39,23 +36,21 @@ function clientId(month: string): string {
   localStorage.setItem(key, id);
   return id;
 }
-
 function doneKey(month: string) {
-  return `oze-vic-issues-${month}-done`;
+  return `oze-vic-issues-v2-${month}-done`;
 }
-function answersKey(month: string) {
-  return `oze-vic-issues-${month}-answers`;
+function revealKey(month: string) {
+  return `oze-vic-issues-v2-${month}-reveal`;
 }
 
-function emptyRatings(): Record<string, Rating | null> {
-  return Object.fromEntries(ISSUE_SLUGS.map((slug) => [slug, null]));
-}
+const LETTERS = ['A', 'B', 'C', 'D'];
 
 export default function IssuesSurveyApp({ window: initialWindow }: { window: PollWindow }) {
-  const [pollWindow, setPollWindow] = useState(initialWindow);
+  const [pollWindow] = useState(initialWindow);
   const month = pollWindow.resultsMonth;
   const canSubmit = pollWindow.open && month === pollWindow.month;
-  const order = useMemo(() => shuffle(VIC_ISSUES), []);
+  const order = useMemo(() => shuffle(RATE_ISSUES), []);
+  const cid = useMemo(() => (typeof window === 'undefined' ? '' : clientId(pollWindow.month)), [pollWindow.month]);
 
   const [step, setStep] = useState<Step>('you');
   const [location, setLocation] = useState<LocationKind | ''>('');
@@ -64,29 +59,33 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
   const [enrolled, setEnrolled] = useState('');
   const [website, setWebsite] = useState('');
   const [openedAt] = useState(() => Date.now());
-  const [ratings, setRatings] = useState<Record<string, Rating | null>>(emptyRatings);
+  const [ratings, setRatings] = useState<Record<string, Rating | null>>(() =>
+    Object.fromEntries(RATE_SLUGS.map((slug) => [slug, null])),
+  );
   const [tieChoice, setTieChoice] = useState<string[]>([]);
   const [top3, setTop3] = useState<string[]>([]);
-  const [picks, setPicks] = useState<Record<string, PickId>>({});
+  const [round, setRound] = useState<RoundIssue[] | null>(null);
   const [pickIndex, setPickIndex] = useState(0);
+  const [picks, setPicks] = useState<BlindPickInput[]>([]);
+  const [screenAt, setScreenAt] = useState(() => Date.now());
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(false);
+  const [reveal, setReveal] = useState<RevealPayload | null>(null);
   const [already, setAlready] = useState(false);
-  const [mine, setMine] = useState<IssuesAnswers | null>(null);
   const [results, setResults] = useState<IssuesMonthResults | null>(null);
   const [crowdView, setCrowdView] = useState<CrowdKey>('everywhere');
+  const [weighted, setWeighted] = useState(false);
   const [shareState, setShareState] = useState<'idle' | 'copied' | 'shared'>('idle');
+  const [named, setNamed] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem(answersKey(pollWindow.month));
+    const saved = localStorage.getItem(revealKey(pollWindow.month));
     if (localStorage.getItem(doneKey(pollWindow.month)) === '1' && saved) {
       try {
-        const parsed = JSON.parse(saved) as IssuesAnswers;
-        setMine(parsed);
-        setTop3(parsed.top3);
-        setDone(true);
+        const parsed = JSON.parse(saved) as RevealPayload;
+        setReveal(parsed);
         setStep('reveal');
+        setNamed(true);
       } catch {
         /* ignore */
       }
@@ -94,31 +93,27 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
   }, [pollWindow.month]);
 
   useEffect(() => {
-    let cancelled = false;
-    void fetch(`/api/issues/results?month=${encodeURIComponent(month)}`, { cache: "no-store" })
-      .then((response) => response.json() as Promise<IssuesMonthResults & { window?: PollWindow }>)
-      .then((payload) => {
-        if (cancelled) return;
-        setResults(payload);
-        if (payload.window) setPollWindow(payload.window);
-      })
-      .catch(() => undefined);
-    return () => {
-      cancelled = true;
-    };
-  }, [month]);
+    if (step !== 'reveal') return;
+    const t = window.setTimeout(() => setNamed(true), 400);
+    return () => window.clearTimeout(t);
+  }, [step]);
 
   const youReady =
-    Boolean(location) &&
-    Boolean(age) &&
-    Boolean(enrolled) &&
-    (location === 'overseas' || /^\d{4}$/.test(postcode));
+    Boolean(location) && Boolean(age) && Boolean(enrolled) && (location === 'overseas' || /^\d{4}$/.test(postcode));
   const rateReady = ratingsComplete(ratings);
   const plan = rateReady ? top3Plan(ratings) : null;
+  const ratedCount = RATE_SLUGS.filter((slug) => ratings[slug] != null).length;
+  const current = round?.[pickIndex];
 
-  function goRate() {
-    setError(null);
-    setStep('rate');
+  async function loadRound() {
+    const response = await fetch(`/api/issues/round?clientId=${encodeURIComponent(cid)}`);
+    const payload = (await response.json()) as { ok?: boolean; issues?: RoundIssue[]; error?: string };
+    if (!response.ok || !payload.ok || !payload.issues) throw new Error(payload.error || 'Could not load the comparison.');
+    setRound(payload.issues);
+    setPickIndex(0);
+    setPicks([]);
+    setScreenAt(Date.now());
+    setStep('picks');
   }
 
   function goFromRatings() {
@@ -130,9 +125,7 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
       return;
     }
     setTop3(plan.definite);
-    setPicks({});
-    setPickIndex(0);
-    setStep('picks');
+    void loadRound().catch((err) => setError(err instanceof Error ? err.message : 'Could not load the comparison.'));
   }
 
   function confirmTie() {
@@ -143,57 +136,55 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
     }
     setError(null);
     setTop3([...plan.definite, ...tieChoice]);
-    setPicks({});
-    setPickIndex(0);
-    setStep('picks');
+    void loadRound().catch((err) => setError(err instanceof Error ? err.message : 'Could not load the comparison.'));
   }
 
-  function toggleTie(slug: string) {
-    if (!plan) return;
-    setTieChoice((current) => {
-      if (current.includes(slug)) return current.filter((item) => item !== slug);
-      if (current.length >= plan.remaining) return current;
-      return [...current, slug];
-    });
+  function choose(slot: BlindPickInput['slot']) {
+    if (!current) return;
+    const next = [...picks.filter((row) => row.slug !== current.slug), { slug: current.slug, slot, ms: Date.now() - screenAt }];
+    setPicks(next);
+    if (pickIndex < (round?.length ?? 0) - 1) {
+      setPickIndex(pickIndex + 1);
+      setScreenAt(Date.now());
+      return;
+    }
+    void submit(next);
   }
 
-  async function submit(nextTop3: string[], nextPicks: Record<string, PickId>) {
+  async function submit(nextPicks: BlindPickInput[]) {
     if (!location || !ratingsComplete(ratings)) return;
     setBusy(true);
     setError(null);
-    const answers: IssuesAnswers = { location, ratings, top3: nextTop3, picks: nextPicks };
     try {
       const response = await fetch('/api/issues/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...answers,
+          location,
           postcode: location === 'overseas' ? '' : postcode,
           age,
           enrolled,
-          clientId: clientId(pollWindow.month),
+          ratings,
+          top3,
+          picks: nextPicks,
+          clientId: cid,
           openedAt,
           website,
         }),
       });
-      const payload = (await response.json()) as { ok?: boolean; error?: string; duplicate?: boolean };
-      if (payload.duplicate) {
-        setAlready(true);
-        setDone(true);
-        setMine(answers);
+      const payload = (await response.json()) as { ok?: boolean; error?: string; duplicate?: boolean; reveal?: RevealPayload };
+      if (payload.reveal) {
         localStorage.setItem(doneKey(pollWindow.month), '1');
-        localStorage.setItem(answersKey(pollWindow.month), JSON.stringify(answers));
+        localStorage.setItem(revealKey(pollWindow.month), JSON.stringify(payload.reveal));
+        setReveal(payload.reveal);
+        setAlready(Boolean(payload.duplicate));
+        setNamed(false);
         setStep('reveal');
+        const crowd = await fetch(`/api/issues/results?month=${encodeURIComponent(pollWindow.month)}`, { cache: 'no-store' });
+        setResults((await crowd.json()) as IssuesMonthResults);
         return;
       }
       if (!response.ok || !payload.ok) throw new Error(payload.error || 'Could not save your response.');
-      localStorage.setItem(doneKey(pollWindow.month), '1');
-      localStorage.setItem(answersKey(pollWindow.month), JSON.stringify(answers));
-      setMine(answers);
-      setDone(true);
-      setStep('reveal');
-      const refresh = await fetch(`/api/issues/results?month=${encodeURIComponent(pollWindow.month)}`, { cache: "no-store" });
-      setResults((await refresh.json()) as IssuesMonthResults);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save your response.');
     } finally {
@@ -201,43 +192,28 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
     }
   }
 
-  function choosePick(pick: PickId) {
-    const slug = top3[pickIndex];
-    if (!slug) return;
-    const nextPicks = { ...picks, [slug]: pick };
-    setPicks(nextPicks);
-    if (pickIndex < top3.length - 1) {
-      setPickIndex(pickIndex + 1);
-      return;
-    }
-    void submit(top3, nextPicks);
-  }
-
-  const pickIssue = issueBySlug(top3[pickIndex] ?? '');
-
   return (
     <div className="issues-page">
       <section className="hero">
         <p className="phase-tag">Victoria 2026 · issues</p>
         <h1>What should decide this election?</h1>
         <p className="lede">
-          Rank the 15 issues from the Election Tracker policy matrix, then pick whose sourced
-          policy is closest — in your view. About 3 minutes. Open to anyone, including overseas.
-          Not a scientific poll, not a scorecard, and not a voting recommendation.
+          Rate 14 issues, then compare 10 policies <strong>without seeing who wrote them</strong>. About 4–6 minutes.
+          Open to anyone, including overseas. Not a scientific poll, not a scorecard, and not a voting recommendation.
         </p>
         <p className="lede">
-          Sourced positions:{' '}
+          Sourced from the{' '}
           <a href={MATRIX_URL} rel="noopener">
-            electiontracker.au policy matrix
+            Election Tracker policy matrix
           </a>
-          .
+          . We compare the 10 issues where the four parties have said clearly different things.
         </p>
         <p className="lede">
           <strong>{pollWindow.label}</strong>
         </p>
       </section>
 
-      {canSubmit && !done && step === 'you' && (
+      {canSubmit && step === 'you' && !reveal && (
         <section className="glass">
           <h2>You</h2>
           <fieldset className="options">
@@ -279,19 +255,18 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
           </fieldset>
           <div className="nav-row">
             <span />
-            <button className="btn btn-primary" type="button" disabled={!youReady} onClick={goRate}>
+            <button className="btn btn-primary" type="button" disabled={!youReady} onClick={() => setStep('rate')}>
               Rate the issues
             </button>
           </div>
         </section>
       )}
 
-      {canSubmit && !done && step === 'rate' && (
+      {canSubmit && step === 'rate' && !reveal && (
         <section className="glass">
           <h2>How much does each issue matter to your vote?</h2>
           <p className="lede">
-            1 {RATING_LABELS[1]} · 3 {RATING_LABELS[3]} · 5 {RATING_LABELS[5]}. Every issue needs a tap — untouched
-            rows are not counted as 3.
+            1 {RATING_LABELS[1]} · 3 {RATING_LABELS[3]} · 5 {RATING_LABELS[5]}. Every row needs a tap.
           </p>
           <ol className="issue-list">
             {order.map((issue) => (
@@ -312,34 +287,35 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
                         checked={ratings[issue.slug] === value}
                         onChange={() => setRatings((current) => ({ ...current, [issue.slug]: value }))}
                       />
-                      <span>
-                        {value}
-                        <abbr>{value === 1 || value === 3 || value === 5 ? RATING_LABELS[value] : ''}</abbr>
-                      </span>
+                      <span>{value}</span>
                     </label>
                   ))}
                 </div>
               </li>
             ))}
           </ol>
-          <p className="lede">{ISSUE_SLUGS.filter((slug) => ratings[slug] != null).length} of 15 rated</p>
-          <div className="nav-row">
-            <button className="btn btn-ghost" type="button" onClick={() => setStep('you')}>
-              Back
-            </button>
-            <button className="btn btn-primary" type="button" disabled={!rateReady} onClick={goFromRatings}>
-              Continue
-            </button>
+          <div className="rate-foot">
+            <p className="lede">{ratedCount} of 14 rated</p>
+            <div className="nav-row">
+              <button className="btn btn-ghost" type="button" onClick={() => setStep('you')}>
+                Back
+              </button>
+              <button className="btn btn-primary" type="button" disabled={!rateReady} onClick={goFromRatings}>
+                Continue
+              </button>
+            </div>
           </div>
+          {error && <p className="lede">{error}</p>}
         </section>
       )}
 
-      {canSubmit && !done && step === 'tie' && plan?.needChoice && (
+      {canSubmit && step === 'tie' && plan?.needChoice && !reveal && (
         <section className="glass">
-          <h2>Which {plan.remaining === 1 ? 'issue' : `${plan.remaining} issues`} matter most?</h2>
-          <p className="lede">
-            Several issues share the same score. Pick {plan.remaining} for the next step — we will not choose for you.
-          </p>
+          <h2>
+            You rated {plan.tied.length} issues as a deciding issue. Which {plan.remaining === 1 ? 'one' : plan.remaining}{' '}
+            decide your vote most?
+          </h2>
+          <p className="lede">Pick {plan.remaining} from this set — we will not choose for you.</p>
           <ul className="tie-list">
             {plan.tied.map((slug) => {
               const issue = issueBySlug(slug);
@@ -347,7 +323,13 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
               const on = tieChoice.includes(slug);
               return (
                 <li key={slug}>
-                  <button type="button" className={on ? 'option on-btn' : 'option'} aria-pressed={on} onClick={() => toggleTie(slug)}>
+                  <button type="button" className="option" aria-pressed={on} onClick={() => {
+                    setTieChoice((current) => {
+                      if (current.includes(slug)) return current.filter((item) => item !== slug);
+                      if (current.length >= plan.remaining) return current;
+                      return [...current, slug];
+                    });
+                  }}>
                     {issue.name}
                   </button>
                 </li>
@@ -366,42 +348,31 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
         </section>
       )}
 
-      {canSubmit && !done && step === 'picks' && pickIssue && (
+      {canSubmit && step === 'picks' && current && (
         <section className="glass">
           <p className="phase-tag">
-            Your top 3 · {pickIndex + 1} of {top3.length}
+            {pickIndex + 1} of {round?.length ?? 10}
           </p>
-          <h2>{pickIssue.name}</h2>
-          <p className="lede">{pickIssue.summary}</p>
-          <p className="lede">
-            Whose policy is closest to yours? Headlines are from the sourced matrix — this is your view, not a site ranking.{' '}
-            <a href={pickIssue.comparisonUrl} rel="noopener">
-              Read the comparison
-            </a>
-          </p>
-          <div className="headline-grid">
-            {DISPLAY_PARTIES.map((party) => {
-              const claim = pickIssue.blindClaims[party.id] ?? pickIssue.headlines[party.id];
-              return (
-                <button
-                  key={party.id}
-                  type="button"
-                  className="headline-card"
-                  disabled={busy}
-                  onClick={() => choosePick(party.id)}
-                >
-                  <strong>{party.label}</strong>
-                  <span>{claim ?? 'No sourced position recorded yet.'}</span>
-                </button>
-              );
-            })}
-          </div>
-          <div className="pick-extra">
-            {PICK_OPTIONS.filter((option) => option.id === 'unsure' || option.id === 'none').map((option) => (
-              <button key={option.id} className="btn btn-ghost" type="button" disabled={busy} onClick={() => choosePick(option.id)}>
-                {option.label}
+          <h2>
+            {current.name} <span className="badge">{current.chip}</span>
+          </h2>
+          <p className="lede">{current.summary}</p>
+          <p className="lede">Which of these comes closest to your view? We’ve hidden who said what. You’ll find out at the end.</p>
+          <div className="headline-grid blind-grid">
+            {current.options.map((text, index) => (
+              <button key={`${current.slug}-${index}`} type="button" className="headline-card" disabled={busy} onClick={() => choose(index)}>
+                <strong>{LETTERS[index]}.</strong>
+                <span>{text}</span>
               </button>
             ))}
+          </div>
+          <div className="pick-extra">
+            <button className="btn btn-ghost" type="button" disabled={busy} onClick={() => choose('none')}>
+              None of these come close
+            </button>
+            <button className="btn btn-ghost" type="button" disabled={busy} onClick={() => choose('cant_choose')}>
+              I can’t choose between them
+            </button>
           </div>
           {error && <p className="lede">{error}</p>}
           {busy && <p className="lede">Saving…</p>}
@@ -412,7 +383,10 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
               disabled={busy}
               onClick={() => {
                 if (pickIndex === 0) setStep(plan?.needChoice ? 'tie' : 'rate');
-                else setPickIndex(pickIndex - 1);
+                else {
+                  setPickIndex(pickIndex - 1);
+                  setScreenAt(Date.now());
+                }
               }}
             >
               Back
@@ -422,20 +396,22 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
         </section>
       )}
 
-      {(done || !canSubmit) && (
+      {step === 'reveal' && reveal && (
         <Reveal
-          mine={mine}
+          reveal={reveal}
+          named={named}
           already={already}
           results={results}
           crowdView={crowdView}
           onView={setCrowdView}
+          weighted={weighted}
+          onWeighted={setWeighted}
           shareState={shareState}
           onShare={setShareState}
-          canSubmit={canSubmit}
         />
       )}
 
-      {!canSubmit && !results && (
+      {!canSubmit && !reveal && (
         <section className="glass">
           <p className="lede">{pollWindow.label}</p>
         </section>
@@ -445,197 +421,189 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
 }
 
 function Reveal({
-  mine,
+  reveal,
+  named,
   already,
   results,
   crowdView,
   onView,
+  weighted,
+  onWeighted,
   shareState,
   onShare,
-  canSubmit,
 }: {
-  mine: IssuesAnswers | null;
+  reveal: RevealPayload;
+  named: boolean;
   already: boolean;
   results: IssuesMonthResults | null;
   crowdView: CrowdKey;
   onView: (view: CrowdKey) => void;
+  weighted: boolean;
+  onWeighted: (value: boolean) => void;
   shareState: 'idle' | 'copied' | 'shared';
   onShare: (state: 'idle' | 'copied' | 'shared') => void;
-  canSubmit: boolean;
 }) {
-  const view: IssuesView | undefined = results?.[crowdView];
-  const names = (mine?.top3 ?? []).map((slug) => issueBySlug(slug)?.name ?? slug);
-  const blind = mine && view ? crowdBlindSpot(view, mine.top3) : null;
-  const shareText = shareCopy(names);
+  const shares: PieShares = weighted ? reveal.weighted : reveal.unweighted;
+  const view = results?.[crowdView];
+  const blind = crowdBlindSpot(view ?? { n: 0, showRank: false, issues: [] }, reveal.top3);
+  const shareText = shareCopy(reveal);
 
   return (
-    <>
-      <section className="glass">
-        {already && <p className="notice">Already counted this month. Your card is below — friends on the same network can still take it.</p>}
-        {mine ? (
-          <>
-            <h2>Your Victoria 2026 issues</h2>
-            <p className="lede">Not a voting recommendation. One open survey response for this month.</p>
-            <ol className="my-rank">
-              {rankedSlugs(mine.ratings).map((slug, index) => {
-                const issue = issueBySlug(slug);
-                const score = mine.ratings[slug] ?? 0;
-                const picked = mine.top3.includes(slug);
-                return (
-                  <li key={slug} className={picked ? 'top' : undefined}>
-                    <span className="rank-n">{index + 1}</span>
-                    <span>
-                      <strong>{issue?.name ?? slug}</strong>
-                      {picked && mine.picks[slug] ? (
-                        <em> · closest in your view: {PICK_OPTIONS.find((option) => option.id === mine.picks[slug])?.label}</em>
-                      ) : null}
-                    </span>
-                    <span className="rank-score" aria-label={`${score} out of 5`}>
-                      {RATING_VALUES.map((value) => (
-                        <span key={value} className={value <= score ? "on" : undefined} />
-                      ))}
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
-          </>
-        ) : (
-          <>
-            <h2>Crowd results</h2>
-            <p className="lede">Take the survey this month to unlock your own ranked card.</p>
-          </>
-        )}
+    <section className="glass">
+      {already && <p className="notice">Already counted this month. Your results are below — friends on the same network can still take it.</p>}
+      <p className="phase-tag">Your 10 picks</p>
+      <h2 className={named ? 'reveal-in' : undefined}>{named ? reveal.headline : 'Matching who said what…'}</h2>
+      <ul className="reveal-picks">
+        {reveal.picks.map((pick) => (
+          <li key={pick.slug}>
+            <strong>{pick.name}</strong>
+            <span>{pick.claim}</span>
+            <em className={named ? 'reveal-in' : 'reveal-wait'}>{named ? pick.partyLabel ?? (pick.chosen === 'none' ? 'None of these' : 'Couldn’t choose') : '…'}</em>
+          </li>
+        ))}
+      </ul>
+      <p className="lede notice">
+        This counts your own choices. It is not a voting recommendation, and not a measure of which party is best.
+      </p>
+      <h3>Your 10 picks</h3>
+      <IssuesPicksPie shares={shares} title="Your 10 picks" />
+      <label className="weight-toggle">
+        <input type="checkbox" checked={weighted} onChange={(e) => onWeighted(e.target.checked)} />
+        Weight by how much each issue matters to me
+      </label>
+      {weighted && <p className="lede">Weighted by your own ratings. Same picks, counted by what you said matters.</p>}
 
-        <div className="view-toggle" role="tablist" aria-label="Result view">
-          <button type="button" className={crowdView === 'everywhere' ? 'chart-tab on' : 'chart-tab'} onClick={() => onView('everywhere')}>
-            Everywhere{results ? ` · ${results.everywhere.n}` : ''}
-          </button>
-          <button type="button" className={crowdView === 'victoria' ? 'chart-tab on' : 'chart-tab'} onClick={() => onView('victoria')}>
-            Victoria{results ? ` · ${results.victoria.n}` : ''}
-          </button>
-        </div>
-
-        {view && !view.showRank && (
-          <p className="notice">
-            You’re among the first {Math.max(view.n, mine ? 1 : 0)} in this view. The crowd ranking appears at {CROWD_RANK_MIN} responses.
-            Send this so it fills in.
-          </p>
-        )}
-
-        {view?.showRank && (
-          <>
-            <h3>Crowd ranking · {crowdView === 'victoria' ? 'Victoria' : 'Everywhere'}</h3>
-            <ol className="crowd-rank">
-              {[...view.issues]
-                .filter((item) => item.rank != null)
-                .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99))
-                .map((item) => (
-                  <li key={item.slug}>
-                    <span>{item.rank}</span>
-                    <span>{issueBySlug(item.slug)?.name ?? item.slug}</span>
-                    <span className="mono">{item.mean?.toFixed(2)}</span>
-                  </li>
+      <h3>Your issue ranking</h3>
+      <ol className="my-rank">
+        {rankedSlugs(reveal.ratings as Record<string, Rating>).map((slug, index) => {
+          const issue = issueBySlug(slug);
+          const score = reveal.ratings[slug] ?? 0;
+          const picked = reveal.top3.includes(slug);
+          return (
+            <li key={slug} className={picked ? 'top' : undefined}>
+              <span className="rank-n">{index + 1}</span>
+              <span>
+                <strong>{issue?.name ?? slug}</strong>
+                {COMPARE_SLUGS.includes(slug) ? <em> · compared</em> : null}
+              </span>
+              <span className="rank-score" aria-label={`${score} out of 5`}>
+                {RATING_VALUES.map((value) => (
+                  <span key={value} className={value <= score ? 'on' : undefined} />
                 ))}
-            </ol>
-            {blind && (
-              <p className="lede">
-                The crowd puts <strong>{issueBySlug(blind)?.name}</strong> higher than you did in your top 3.
-              </p>
-            )}
-          </>
-        )}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
 
-        {mine &&
-          view &&
-          mine.top3.map((slug) => {
+      <div className="view-toggle" role="tablist" aria-label="Result view">
+        <button type="button" className={crowdView === 'everywhere' ? 'chart-tab on' : 'chart-tab'} onClick={() => onView('everywhere')}>
+          Everywhere{results ? ` · ${results.everywhere.n}` : ''}
+        </button>
+        <button type="button" className={crowdView === 'victoria' ? 'chart-tab on' : 'chart-tab'} onClick={() => onView('victoria')}>
+          Victoria{results ? ` · ${results.victoria.n}` : ''}
+        </button>
+      </div>
+
+      {view && !view.showRank && (
+        <p className="notice">
+          You’re one of the first {Math.max(view.n, 1)} people in this view. Come back in a few days to see how Victoria
+          compares — send this so the crowd fills in. Crowd ranking appears at {CROWD_RANK_MIN} responses.
+        </p>
+      )}
+
+      {view?.showRank && (
+        <>
+          <h3>Crowd ranking · {crowdView === 'victoria' ? 'Victoria' : 'Everywhere'}</h3>
+          <ol className="crowd-rank">
+            {[...view.issues]
+              .filter((item) => item.rank != null)
+              .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99))
+              .map((item) => (
+                <li key={item.slug}>
+                  <span>{item.rank}</span>
+                  <span>{issueBySlug(item.slug)?.name ?? item.slug}</span>
+                  <span className="mono">{item.mean?.toFixed(2)}</span>
+                </li>
+              ))}
+          </ol>
+          {blind && (
+            <p className="lede">
+              The crowd puts <strong>{issueBySlug(blind)?.name}</strong> higher than you did in your top 3.
+            </p>
+          )}
+          {COMPARE_SLUGS.map((slug) => {
             const issue = issueBySlug(slug);
             const crowdIssue = view.issues.find((item) => item.slug === slug);
-            if (!issue || !crowdIssue) return null;
+            if (!issue || !crowdIssue?.showPicks) return null;
             return (
               <div key={slug} className="pick-split">
                 <h3>{issue.name}</h3>
-                <p className="lede">
-                  You picked {PICK_OPTIONS.find((option) => option.id === mine.picks[slug])?.label ?? '—'}.
-                  {crowdIssue.showPicks
-                    ? ` Among people who put this in their top 3 (n=${crowdIssue.top3n}):`
-                    : ` Party splits appear after ${PICK_SPLIT_MIN} people in this view put it in their top 3 (now ${crowdIssue.top3n}).`}
-                </p>
-                {crowdIssue.showPicks && (
-                  <ul className="split-bars">
-                    {PICK_OPTIONS.map((option) => {
-                      const count = crowdIssue.pickCounts[option.id] ?? 0;
-                      const pct = crowdIssue.top3n ? Math.round((100 * count) / crowdIssue.top3n) : 0;
-                      if (!count && (option.id === 'unsure' || option.id === 'none')) return null;
-                      return (
-                        <li key={option.id}>
-                          <span>{option.label}</span>
-                          <span className="tally-bar" aria-hidden="true">
-                            <span style={{ width: `${pct}%` }} />
-                          </span>
-                          <span className="mono">{pct}%</span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
+                <p className="lede">Among everyone who answered (n={crowdIssue.nPicks}):</p>
+                <ul className="split-bars">
+                  {(['grn', 'alp', 'lnp', 'onp', 'none', 'cant_choose'] as const).map((key) => {
+                    const count = crowdIssue.pickCounts[key] ?? 0;
+                    const pct = crowdIssue.nPicks ? Math.round((100 * count) / crowdIssue.nPicks) : 0;
+                    const label = key === 'none' ? 'None of these' : key === 'cant_choose' ? 'Can’t choose' : PIE_LABELS[key];
+                    return (
+                      <li key={key}>
+                        <span>{label}</span>
+                        <span className="tally-bar" aria-hidden="true">
+                          <span style={{ width: `${pct}%` }} />
+                        </span>
+                        <span className="mono">{pct}%</span>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             );
           })}
+        </>
+      )}
 
-        <div className="share-box">
-          <p className="phase-tag">Share</p>
-          <pre className="share-copy">{shareText}</pre>
-          <div className="btn-row-inline">
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={() => {
-                void shareResult(shareText, names).then(onShare);
-              }}
-            >
-              {shareState === 'copied' ? 'Copied' : shareState === 'shared' ? 'Shared' : 'Share my issues'}
-            </button>
-            <a className="btn btn-ghost" href={MONTHLY_POLL_URL}>
-              Take the monthly vote survey
-            </a>
-            <a className="btn btn-ghost" href={MATRIX_URL} rel="noopener">
-              Open the policy matrix
-            </a>
-          </div>
+      <div className="share-box">
+        <p className="phase-tag">Share</p>
+        <pre className="share-copy">{shareText}</pre>
+        <div className="btn-row-inline">
+          <button className="btn btn-primary" type="button" onClick={() => void shareResult(shareText).then(onShare)}>
+            {shareState === 'copied' ? 'Copied' : shareState === 'shared' ? 'Shared' : 'Share my issues'}
+          </button>
+          <a className="btn btn-ghost" href={MONTHLY_POLL_URL}>
+            Take the monthly vote survey
+          </a>
+          <a className="btn btn-ghost" href={MATRIX_URL} rel="noopener">
+            Open the policy matrix
+          </a>
         </div>
-      </section>
-      {canSubmit ? null : <p className="lede">This month’s survey is closed. Results above are the latest snapshot.</p>}
-    </>
+      </div>
+    </section>
   );
 }
 
-function shareCopy(names: string[]): string {
-  const list = names.length
-    ? names.map((name, index) => `${index + 1}. ${name}`).join('\n')
-    : ISSUES_SOCIAL_COPY;
-  if (!names.length) return ISSUES_SOCIAL_COPY;
-  return `My Victoria 2026 issues:
-${list}
+function shareCopy(reveal: RevealPayload): string {
+  const counts = reveal.unweighted;
+  const bar = (n: number) => '█'.repeat(Math.round(n * 10)) + '░'.repeat(10 - Math.round(n * 10));
+  return `MY VICTORIA 2026 — blind policy test
 
-Whose policy is closest — my pick. Not a voting recommendation.
+I compared 10 policies without knowing who wrote them.
 
-What’s yours?
-${ISSUES_URL}
+  Greens      ${bar(counts.grn)}  ${Math.round(counts.grn * 10)}
+  Labor       ${bar(counts.alp)}  ${Math.round(counts.alp * 10)}
+  Coalition   ${bar(counts.lnp)}  ${Math.round(counts.lnp * 10)}
+  One Nation  ${bar(counts.onp)}  ${Math.round(counts.onp * 10)}
+  No pick     ${bar(counts.nopick)}  ${Math.round(counts.nopick * 10)}
 
-Sourced policies: ${MATRIX_URL}`;
+Counts my own picks. Not a voting recommendation.
+
+Try it: ${ISSUES_URL}
+Policies: electiontracker.au`;
 }
 
-async function shareResult(text: string, names: string[]): Promise<'copied' | 'shared'> {
-  const shareData: ShareData = { title: 'My Victoria 2026 issues', text, url: ISSUES_URL };
+async function shareResult(text: string): Promise<'copied' | 'shared'> {
   try {
     if (typeof navigator.share === 'function') {
-      const file = names.length ? await pngCard(names) : null;
-      if (file && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ ...shareData, files: [file] });
-        return 'shared';
-      }
-      await navigator.share(shareData);
+      await navigator.share({ title: 'My Victoria 2026 issues', text, url: ISSUES_URL });
       return 'shared';
     }
   } catch (error) {
@@ -643,33 +611,4 @@ async function shareResult(text: string, names: string[]): Promise<'copied' | 's
   }
   await navigator.clipboard.writeText(text);
   return 'copied';
-}
-
-async function pngCard(names: string[]): Promise<File | null> {
-  try {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1080;
-    canvas.height = 1080;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return null;
-    ctx.fillStyle = '#08121a';
-    ctx.fillRect(0, 0, 1080, 1080);
-    ctx.fillStyle = '#18b6e6';
-    ctx.font = '600 28px system-ui, sans-serif';
-    ctx.fillText('MY VICTORIA 2026', 72, 140);
-    ctx.fillStyle = '#eaf3f1';
-    ctx.font = '700 52px Georgia, serif';
-    names.slice(0, 3).forEach((name, index) => {
-      ctx.fillText(`${index + 1}. ${name}`, 72, 280 + index * 88);
-    });
-    ctx.font = '500 28px system-ui, sans-serif';
-    ctx.fillStyle = '#9fb4b0';
-    ctx.fillText('Not a voting recommendation.', 72, 620);
-    ctx.fillText('survey.oze.net.au/s/vic-issues', 72, 920);
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
-    if (!blob) return null;
-    return new File([blob], 'vic-issues.png', { type: 'image/png' });
-  } catch {
-    return null;
-  }
 }
