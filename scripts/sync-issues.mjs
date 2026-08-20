@@ -38,6 +38,21 @@ function partyHeadline(party, cell) {
   return cell?.headline ?? null;
 }
 
+function coalitionClaim(cell) {
+  if (!cell?.has_policy) return null;
+  return (
+    cell.policy?.blind_claim ??
+    cell.member_policies?.liberal?.blind_claim ??
+    cell.member_policies?.nationals?.blind_claim ??
+    null
+  );
+}
+
+function partyClaim(party, cell) {
+  if (party === 'coalition') return coalitionClaim(cell);
+  return cell?.blind_claim ?? null;
+}
+
 function render(issues) {
   return `/** Committed snapshot of Vic 2026 matrix issues. Refresh with \`node scripts/sync-issues.mjs --write\`. */
 export type Jurisdiction = 'state_primary' | 'shared_fed_state' | 'federal_primary' | 'local_primary' | 'shared_state_local';
@@ -52,6 +67,7 @@ export type VicIssue = {
   chip: string;
   comparisonUrl: string;
   headlines: Record<DisplayPartyId, string | null>;
+  blindClaims: Record<DisplayPartyId, string | null>;
 };
 
 export const VIC_ISSUES: VicIssue[] = ${JSON.stringify(issues, null, 2)};
@@ -76,6 +92,12 @@ const issues = view.rows.map((row) => ({
     labor: partyHeadline('labor', row.cells.labor),
     coalition: partyHeadline('coalition', row.cells.coalition),
     'one-nation': partyHeadline('one-nation', row.cells['one-nation']),
+  },
+  blindClaims: {
+    greens: partyClaim('greens', row.cells.greens),
+    labor: partyClaim('labor', row.cells.labor),
+    coalition: partyClaim('coalition', row.cells.coalition),
+    'one-nation': partyClaim('one-nation', row.cells['one-nation']),
   },
 }));
 

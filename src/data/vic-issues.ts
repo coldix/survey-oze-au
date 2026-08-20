@@ -11,6 +11,7 @@ export type VicIssue = {
   chip: string;
   comparisonUrl: string;
   headlines: Record<DisplayPartyId, string | null>;
+  blindClaims: Record<DisplayPartyId, string | null>;
 };
 
 export const VIC_ISSUES: VicIssue[] = [
@@ -26,6 +27,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Transport rebates, fuel price controls and targeted household concessions",
       "coalition": "Scrap the emergency levy, abolish first-home stamp duty and repeal selected state taxes",
       "one-nation": "Remove insurance duty, end renewable subsidies and redirect wasteful spending"
+    },
+    "blindClaims": {
+      "greens": "Free public transport and rent caps",
+      "labor": "Transport rebates and fuel controls",
+      "coalition": "Scrap emergency levy and stamp duty",
+      "one-nation": "Cut insurance duty and energy subsidies"
     }
   },
   {
@@ -40,6 +47,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Free midday power, legislated renewable targets and storage-backed reliability",
       "coalition": "Reverse the gas ban; urban solar parks; review major transmission projects",
       "one-nation": "Coal, gas, nuclear and hydro with no new renewable subsidies"
+    },
+    "blindClaims": {
+      "greens": "100% renewables by 2030",
+      "labor": "Free midday power",
+      "coalition": "Reverse the gas ban",
+      "one-nation": "Coal, gas, nuclear — no new subsidies"
     }
   },
   {
@@ -54,6 +67,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Free Kinder and TAFE, new schools and disability inclusion",
       "coalition": "Literacy and Numeracy Guarantee, early specialist support and repeal of the schools tax",
       "one-nation": "Back-to-basics curriculum, parental control and stronger discipline"
+    },
+    "blindClaims": {
+      "greens": "Make public education free",
+      "labor": "Free Kinder and TAFE",
+      "coalition": "Literacy first, repeal the schools tax",
+      "one-nation": "Back-to-basics and parental control"
     }
   },
   {
@@ -68,6 +87,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Federal policy — 185,000 permanent places with an onshore and skilled focus",
       "coalition": "Federal policy — cap migration by housing supply and tighten visa standards",
       "one-nation": "Federal policy — cut visas; deport unlawful non-residents"
+    },
+    "blindClaims": {
+      "greens": "Expand humanitarian intake",
+      "labor": "185,000 permanent places, skilled focus",
+      "coalition": "Cap migration to housing supply",
+      "one-nation": "Cut visas, deport unlawful non-residents"
     }
   },
   {
@@ -82,6 +107,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Tougher bail and youth sentencing alongside permanent violence prevention",
       "coalition": "Liberal: Safer Communities Plan — police, bail, Adult Crime Adult Time · Nationals: Coalition Safer Communities Plan (shared with Liberals)",
       "one-nation": "Tougher bail and sentencing for repeat youth offenders"
+    },
+    "blindClaims": {
+      "greens": "Justice reinvestment, not more jail",
+      "labor": "Tougher bail and youth sentences",
+      "coalition": "Tougher bail, adult time for youth crime",
+      "one-nation": "Tougher bail for repeat youth offenders"
     }
   },
   {
@@ -96,6 +127,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Stronger licensing checks, permanent prohibition orders and tougher trafficking penalties",
       "coalition": "Nationals: Target criminal access while protecting licensed farmers, hunters and sporting shooters",
       "one-nation": "Streamline lawful ownership, review the NFA and strengthen penalties for criminal use"
+    },
+    "blindClaims": {
+      "greens": "Tighter licences, fewer high-risk guns",
+      "labor": "Stronger checks and prohibition orders",
+      "coalition": "Target criminals, protect licensed owners",
+      "one-nation": "Easier lawful ownership, harder on criminals"
     }
   },
   {
@@ -110,6 +147,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Retrospective follow-the-money powers and broader IBAC reform",
       "coalition": "Royal commission, stronger IBAC powers and a construction-sector watchdog",
       "one-nation": "Royal commission into CFMEU Big Build contracts and stronger transparency"
+    },
+    "blindClaims": {
+      "greens": "Broader IBAC and donation rules",
+      "labor": "Follow-the-money IBAC powers",
+      "coalition": "Royal commission and construction watchdog",
+      "one-nation": "Royal commission into Big Build contracts"
     }
   },
   {
@@ -124,6 +167,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Operating surpluses while net debt rises in dollars but falls relative to the economy",
       "coalition": "Back-office hiring freeze, cash surplus by 2032 and tighter expenditure controls",
       "one-nation": "Spending review, lower debt and a phase-out of payroll tax"
+    },
+    "blindClaims": {
+      "greens": "Tax property and banks more",
+      "labor": "Surplus while dollar debt still rises",
+      "coalition": "Hiring freeze, surplus by 2032",
+      "one-nation": "Cut spending and payroll tax"
     }
   },
   {
@@ -138,6 +187,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "End native timber harvesting, restore habitat and expand forest recreation",
       "coalition": "Liberal: Agricultural impact tests, landholder protections and a bushfire inquiry · Nationals: Agricultural impact tests, landholder protections and restoration of native forestry",
       "one-nation": "Practical conservation, fire mitigation and support for forestry"
+    },
+    "blindClaims": {
+      "greens": "Close logging loopholes",
+      "labor": "End native timber harvesting",
+      "coalition": "Protect landholders, bushfire inquiry",
+      "one-nation": "Fire mitigation and keep forestry"
     }
   },
   {
@@ -152,6 +207,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Family violence reform, gender-responsive budgeting and LGBTIQA+ equality",
       "coalition": "Criminalise coercive control and establish a domestic-violence disclosure scheme",
       "one-nation": "Roll back school gender programs and prioritise sex-based protections"
+    },
+    "blindClaims": {
+      "greens": "Reproductive leave and LGBTIQA+ protections",
+      "labor": "Family-violence reform and equality laws",
+      "coalition": "Criminalise coercive control",
+      "one-nation": "End school gender programs"
     }
   },
   {
@@ -166,6 +227,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Net zero by 2045 with legislated interim targets and a 2026–30 climate strategy",
       "coalition": "Federal policy — remove Net Zero target from legislation",
       "one-nation": "Oppose Net Zero while funding practical conservation and restoration"
+    },
+    "blindClaims": {
+      "greens": "No new coal or gas",
+      "labor": "Net zero by 2045",
+      "coalition": "Remove the Net Zero target",
+      "one-nation": "Oppose Net Zero"
     }
   },
   {
@@ -180,6 +247,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Implement Victoria's Statewide Treaty and Gellung Warl institutions",
       "coalition": "Repeal the Statewide Treaty framework within 100 days",
       "one-nation": "Oppose and repeal Victoria's Statewide Treaty framework"
+    },
+    "blindClaims": {
+      "greens": "Support Treaty and self-determination",
+      "labor": "Implement Statewide Treaty",
+      "coalition": "Repeal Treaty within 100 days",
+      "one-nation": "Repeal Statewide Treaty"
     }
   },
   {
@@ -194,6 +267,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Social housing investment, activity-centre density and faster approvals",
       "coalition": "Fast-track growth areas, expand inner-city housing and restore local planning input",
       "one-nation": "Reduce demand, release land and cut taxes and planning delays"
+    },
+    "blindClaims": {
+      "greens": "Rent controls and 88,000 public homes",
+      "labor": "Social housing and denser activity centres",
+      "coalition": "Fast-track growth, restore local planning",
+      "one-nation": "Cut demand, release land, faster approvals"
     }
   },
   {
@@ -208,6 +287,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Record health funding, hospital capacity and free care outside emergency departments",
       "coalition": "$850m West Gippsland hospital, free MenB vaccination and repeal of the GP tax",
       "one-nation": "Expand the health workforce and rebuild Rosebud Hospital through a PPP"
+    },
+    "blindClaims": {
+      "greens": "Universal public healthcare",
+      "labor": "More hospital beds, free non-ED care",
+      "coalition": "New regional hospital, repeal GP tax",
+      "one-nation": "More clinicians, PPP hospital rebuild"
     }
   },
   {
@@ -222,6 +307,12 @@ export const VIC_ISSUES: VicIssue[] = [
       "labor": "Roads blitz, locally built trains and regional freight maintenance",
       "coalition": "$5bn roads program, regional Fair Share Guarantee and a pause on the SRL",
       "one-nation": "Regional roads and services, restrained major-project spending and PPP delivery"
+    },
+    "blindClaims": {
+      "greens": "Permanent free public transport",
+      "labor": "Roads blitz and locally built trains",
+      "coalition": "$5bn roads, pause the SRL",
+      "one-nation": "Regional roads, restrain mega-projects"
     }
   }
 ];

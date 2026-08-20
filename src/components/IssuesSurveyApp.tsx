@@ -381,7 +381,7 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
           </p>
           <div className="headline-grid">
             {DISPLAY_PARTIES.map((party) => {
-              const headline = pickIssue.headlines[party.id];
+              const claim = pickIssue.blindClaims[party.id] ?? pickIssue.headlines[party.id];
               return (
                 <button
                   key={party.id}
@@ -391,7 +391,7 @@ export default function IssuesSurveyApp({ window: initialWindow }: { window: Pol
                   onClick={() => choosePick(party.id)}
                 >
                   <strong>{party.label}</strong>
-                  <span>{headline ?? 'No sourced position recorded yet.'}</span>
+                  <span>{claim ?? 'No sourced position recorded yet.'}</span>
                 </button>
               );
             })}
