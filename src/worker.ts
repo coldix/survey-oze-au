@@ -1,5 +1,8 @@
 import { buildCommunityStats } from './lib/community';
-import { describePollWindow, isValidMonthKey } from './lib/poll-window';
+import { isValidMonthKey } from './lib/poll-window';
+import { loadSurveyWindow } from './lib/survey-settings';
+import { handleAdmin } from './lib/admin-api';
+import { suspicionReasons } from './lib/admin-flag';
 import { summarisePollMonth, type PollRow } from './lib/poll-results';
 import { INTENTION_OPTIONS, LAST_VOTE_OPTIONS } from './lib/poll-math';
 import { clientIp, isLikelyBot } from './lib/poll-security';
@@ -56,10 +59,31 @@ async function submit(request: Request, env: Env): Promise<Response> {
     }
   }
 
+  const moneyWindow = await loadSurveyWindow(env, 'money');
+  if (!moneyWindow.open) return json({ ok: false, error: moneyWindow.label }, 403);
+
+  const ip = clientIp(request);
+  const ua = (request.headers.get('User-Agent') ?? '').slice(0, 300);
+  const cf = request.cf as { country?: string } | undefined;
+  const country = cf?.country ?? request.headers.get('CF-IPCountry');
+  const reasons = suspicionReasons({ ip, country, userAgent: ua });
   await env.DB.prepare(
-    'INSERT INTO responses (id, survey_slug, created_at, client_hash, answers_json, score, max_score) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO responses (id, survey_slug, created_at, client_hash, answers_json, score, max_score, ip, user_agent, country, flagged, flag_reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
   )
-    .bind(id, slug, Date.now(), clientHash, JSON.stringify(body.answers), score, max)
+    .bind(
+      id,
+      slug,
+      Date.now(),
+      clientHash,
+      JSON.stringify(body.answers),
+      score,
+      max,
+      ip,
+      ua,
+      country,
+      reasons.length ? 1 : 0,
+      reasons.length ? reasons.join('; ') : null,
+    )
     .run();
 
   return json({ ok: true, id, score, max });
@@ -83,7 +107,7 @@ const GENDERS = new Set(['Female', 'Male', 'Non-binary', 'Prefer not to say']);
 const ENROLLED = new Set(['yes', 'no', 'unsure']);
 
 async function pollSubmit(request: Request, env: Env): Promise<Response> {
-  const window = describePollWindow();
+  const window = await loadSurveyWindow(env, 'monthly-poll');
   if (!window.open) return json({ ok: false, error: `Poll is closed. ${window.label}` }, 403);
 
   let body: Record<string, string>;
@@ -169,11 +193,22 @@ async function pollSubmit(request: Request, env: Env): Promise<Response> {
   } catch {
     return json({ ok: true, duplicate: true });
   }
+  const reasons = suspicionReasons({
+    ip,
+    country: (cf?.country ?? request.headers.get('CF-IPCountry')) as string | null,
+    userAgent: ua,
+    botScore: cf?.botManagement?.score ?? null,
+  });
+  if (reasons.length) {
+    await env.DB.prepare('UPDATE poll_responses SET flagged = 1, flag_reason = ? WHERE id = ?')
+      .bind(reasons.join('; '), id)
+      .run();
+  }
   return json({ ok: true, id });
 }
 
 async function pollResults(url: URL, env: Env): Promise<Response> {
-  const window = describePollWindow();
+  const window = await loadSurveyWindow(env, 'monthly-poll');
   const requested = url.searchParams.get('month') ?? '';
   const month = isValidMonthKey(requested) ? requested : window.resultsMonth;
   const { results } = await env.DB.prepare(
@@ -194,6 +229,8 @@ async function pollResults(url: URL, env: Env): Promise<Response> {
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    const admin = await handleAdmin(request, env);
+    if (admin) return admin;
     const url = new URL(request.url);
     if (url.pathname === '/api/submit') {
       if (request.method !== 'POST') return json({ ok: false, error: 'Method not allowed.' }, 405);

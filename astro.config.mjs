@@ -9,7 +9,7 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap({
-      filter: (page) => !page.includes('404'),
+      filter: (page) => !page.includes('404') && !page.includes('/admin'),
       serialize(item) {
         if (item.url.endsWith('/s/monthly-poll')) {
           return { ...item, changefreq: 'daily', priority: 1 };

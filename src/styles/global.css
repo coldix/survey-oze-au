@@ -437,6 +437,30 @@ fieldset.options legend { font-weight: 700; margin-bottom: .5rem; }
 .reveal-in { animation: fade-in .45s ease; }
 @keyframes fade-in { from { opacity: 0; transform: translateY(.2rem); } to { opacity: 1; transform: none; } }
 .weight-toggle { display: flex; gap: .55rem; align-items: center; margin: .8rem 0; font-weight: 600; }
+
+.admin-page { display: grid; gap: 1.2rem; }
+.admin-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .8rem; }
+.admin-card {
+  display: grid;
+  gap: .25rem;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: .9rem 1rem;
+  background: var(--glass);
+  color: inherit;
+  cursor: pointer;
+}
+.admin-card.on { border-color: var(--accent); }
+.admin-card strong { font-size: 1rem; }
+.admin-card span { color: var(--soft); font-size: .88rem; }
+.admin-dates { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .8rem; align-items: end; }
+.admin-table-wrap { overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.admin-table th, .admin-table td { text-align: left; vertical-align: top; padding: .55rem .45rem; border-bottom: 1px solid var(--line); }
+.admin-table tr.suspect { background: color-mix(in srgb, var(--danger) 10%, transparent); }
+.admin-table .ua { max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--soft); }
+.flag-list { margin: .2rem 0 0; padding-left: 1.1rem; }
 .tie-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
 .tie-list .option { width: 100%; }
 .tie-list .option[aria-pressed='true'] {

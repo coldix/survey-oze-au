@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AdminApp from '../components/AdminApp';
+---
+<BaseLayout
+  title="Admin — survey.oze.net.au"
+  description="Private admin dashboard."
+  robots="noindex, nofollow"
+>
+  <div class="wrap-poll" style="padding-block: 2rem;">
+    <AdminApp client:only="react" />
+  </div>
+</BaseLayout>

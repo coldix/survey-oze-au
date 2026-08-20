@@ -1,6 +1,8 @@
 import { BLIND_CLAIMS, ISSUE_SET, MATRIX_HASH } from '../data/vic-issues-claims';
 import { clientIp, isLikelyBot } from './poll-security';
-import { describePollWindow, isValidMonthKey } from './poll-window';
+import { isValidMonthKey } from './poll-window';
+import { loadSurveyWindow } from './survey-settings';
+import { suspicionReasons } from './admin-flag';
 import { normalisePostcode, stateFromPostcode } from './postcode';
 import { buildRound, parseShown, type ShownOrder } from './issues-round';
 import {
@@ -70,7 +72,7 @@ function revealFrom(picks: PickRow[], ratings: Record<string, number>, top3: str
 }
 
 export async function issuesRound(request: Request, env: Env): Promise<Response> {
-  const window = describePollWindow();
+  const window = await loadSurveyWindow(env, 'vic-issues');
   if (!window.open) return json({ ok: false, error: `Survey is closed. ${window.label}` }, 403);
   const url = new URL(request.url);
   const clientId = url.searchParams.get('clientId')?.trim() ?? '';
@@ -134,7 +136,7 @@ async function loadReveal(env: Env, id: string): Promise<RevealPayload | null> {
 }
 
 export async function issuesSubmit(request: Request, env: Env): Promise<Response> {
-  const window = describePollWindow();
+  const window = await loadSurveyWindow(env, 'vic-issues');
   if (!window.open) return json({ ok: false, error: `Survey is closed. ${window.label}` }, 403);
   const length = Number(request.headers.get('content-length') || '0');
   if (length > MAX_BODY_BYTES) return json({ ok: false, error: 'Payload too large.' }, 413);
@@ -287,11 +289,24 @@ export async function issuesSubmit(request: Request, env: Env): Promise<Response
     ),
   );
 
+  const reasons = suspicionReasons({
+    ip,
+    country: (cf?.country ?? request.headers.get('CF-IPCountry')) as string | null,
+    userAgent: ua,
+    botScore: cf?.botManagement?.score ?? null,
+    pickMs: resolved.map((row) => row.ms),
+  });
+  if (reasons.length) {
+    await env.DB.prepare('UPDATE issue_responses SET flagged = 1, flag_reason = ? WHERE id = ?')
+      .bind(reasons.join('; '), id)
+      .run();
+  }
+
   return json({ ok: true, id, reveal: revealFrom(pickRows, you.ratings, you.top3, shown) });
 }
 
 export async function issuesResults(url: URL, env: Env): Promise<Response> {
-  const window = describePollWindow();
+  const window = await loadSurveyWindow(env, 'vic-issues');
   const requested = url.searchParams.get('month') ?? '';
   const month = isValidMonthKey(requested) ? requested : window.resultsMonth;
   const { results: ratingRows } = await env.DB.prepare(
