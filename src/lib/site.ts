@@ -1,5 +1,5 @@
 export const SITE = {
-  name: 'survey.oze.au',
+  name: 'survey.oze.net.au',
   tagline: 'Educational surveys from the oze.au family',
   description:
     'Anonymous Australian surveys from oze.au — a monthly Victorian and federal voting poll, a Victoria 2026 issues survey, plus Money in Your Wallet. Results are stored for real.',
@@ -17,7 +17,7 @@ export const MONEY_URL = `${SITE.url}/s/money`;
 export const ISSUES_URL = `${SITE.url}/s/vic-issues`;
 
 export const HOME = {
-  title: 'survey.oze.au — Australian voting poll and banknote quiz',
+  title: 'survey.oze.net.au — Australian voting poll and banknote quiz',
   description:
     'Anonymous educational surveys from oze.au. Vote in the monthly Victorian (28 Nov 2026) and federal poll, rank Victoria 2026 issues, or take Money in Your Wallet.',
 };

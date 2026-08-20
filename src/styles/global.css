@@ -103,28 +103,36 @@ button, input, textarea { font: inherit; }
 .icon-moon { display: block; }
 html[data-theme='dark'] .icon-sun { display: block; }
 html[data-theme='dark'] .icon-moon { display: none; }
-@media (max-width: 40rem) {
+@media (max-width: 42rem) {
   .theme-label { display: none; }
   .brand-sub { display: none; }
+  .brand-prefix { display: none; }
   .site-header nav a[href='https://oze.au'] { display: none; }
+  .design-credit-text { display: none; }
 }
 .site-footer {
   border-top: 1px solid var(--line);
   margin-top: 3rem;
-  padding-block: 1.4rem 1.6rem;
+  padding-block: 1.1rem 1.25rem;
   color: var(--soft);
-  font-size: .85rem;
+  font-size: .82rem;
 }
+.site-footer .wrap { width: min(90rem, calc(100% - 2rem)); }
 .footer-bottom {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
-  gap: .75rem 1.5rem;
+  gap: .75rem 1.25rem;
+  overflow-x: auto;
 }
-.footer-meta { margin: 0; line-height: 1.55; }
-.meta-sep, .build-sep { margin: 0 .4rem; opacity: .45; }
-.build-stamp { font-variant-numeric: tabular-nums; }
+.footer-meta {
+  margin: 0;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.meta-sep, .build-sep { margin: 0 .35rem; opacity: .45; }
+.build-stamp { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .build-label {
   font-weight: 650;
   letter-spacing: .04em;
