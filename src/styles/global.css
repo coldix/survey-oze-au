@@ -32,6 +32,7 @@ img { max-width: 100%; display: block; }
 button, input, textarea { font: inherit; }
 
 .wrap { width: min(52rem, calc(100% - 2rem)); margin-inline: auto; }
+.wrap-poll { width: min(72rem, calc(100% - 2rem)); margin-inline: auto; }
 .skip-link { position: absolute; left: -999px; }
 .skip-link:focus { left: 1rem; top: 1rem; background: var(--glass); padding: .5rem 1rem; }
 
@@ -260,6 +261,12 @@ html[data-theme='light'] .dnd-item.swatch-brown { background: #7a4218; color: #f
 .field { display: grid; gap: .4rem; margin: 1rem 0; font-weight: 600; }
 fieldset.options { border: 0; padding: 0; margin: 1.2rem 0; }
 fieldset.options legend { font-weight: 700; margin-bottom: .5rem; }
+@media (min-width: 640px) {
+  .poll-page fieldset.options { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .poll-page fieldset.options { grid-template-columns: repeat(3, 1fr); }
+}
 .poll-page { display: grid; gap: 1.2rem; }
 .chart-tabs { display: flex; flex-wrap: wrap; gap: .4rem; margin: .8rem 0 1rem; }
 .chart-tab {
