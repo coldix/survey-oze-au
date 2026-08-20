@@ -11,7 +11,9 @@
     "check": "astro check",
     "cf:types": "wrangler types",
     "cf:dev": "npm run build && wrangler dev",
-    "db:local": "wrangler d1 migrations apply survey-responses --local"
+    "db:local": "wrangler d1 migrations apply survey-responses --local",
+    "sync:issues": "node scripts/sync-issues.mjs --write",
+    "check:issues": "node scripts/sync-issues.mjs --verify"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.2",

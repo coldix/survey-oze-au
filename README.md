@@ -16,6 +16,7 @@ The July 2026 static HTML prototype is gone. This repo is Astro 5 + a Cloudflare
 |---|---|
 | https://survey.oze.net.au | Home |
 | https://survey.oze.net.au/s/monthly-poll | Monthly Vic + federal voting poll |
+| https://survey.oze.net.au/s/vic-issues | Victoria 2026 issues (rank + closest policy) |
 | https://survey.oze.net.au/s/money | Money in Your Wallet (currency quiz) |
 
 `survey.oze.au` has a Hostinger CNAME to `survey.oze.net.au`. HTTPS on that name is **not** live — Cloudflare will not issue a cert while `oze.au` nameservers stay at Hostinger. Use the `.net.au` URL.
@@ -55,6 +56,7 @@ npx wrangler deploy
 
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — account, D1, deploy
 - [docs/POLL.md](docs/POLL.md) — monthly voting poll
+- [docs/ISSUES.md](docs/ISSUES.md) — Victoria 2026 issues survey
 - [docs/DNS.md](docs/DNS.md) — Hostinger + Cloudflare hostnames
 - [docs/SEO.md](docs/SEO.md) — SEO and AI (what is live, what is not)
 

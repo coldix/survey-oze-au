@@ -2,7 +2,7 @@ export const SITE = {
   name: 'survey.oze.au',
   tagline: 'Educational surveys from the oze.au family',
   description:
-    'Anonymous Australian surveys from oze.au — a monthly Victorian and federal voting poll, plus Money in Your Wallet, a quiz on Australian banknotes. Results are stored for real.',
+    'Anonymous Australian surveys from oze.au — a monthly Victorian and federal voting poll, a Victoria 2026 issues survey, plus Money in Your Wallet. Results are stored for real.',
   url: 'https://survey.oze.net.au',
   email: 'col@dixon.au',
   hub: 'https://oze.au',
@@ -13,11 +13,12 @@ export const SITE = {
 
 export const POLL_URL = `${SITE.url}/s/monthly-poll`;
 export const MONEY_URL = `${SITE.url}/s/money`;
+export const ISSUES_URL = `${SITE.url}/s/vic-issues`;
 
 export const HOME = {
   title: 'survey.oze.au — Australian voting poll and banknote quiz',
   description:
-    'Anonymous educational surveys from oze.au. Vote in the monthly Victorian (28 Nov 2026) and federal poll, or take Money in Your Wallet — a five-minute quiz on Australian banknotes.',
+    'Anonymous educational surveys from oze.au. Vote in the monthly Victorian (28 Nov 2026) and federal poll, rank Victoria 2026 issues, or take Money in Your Wallet.',
 };
 
 export const MONEY = {
@@ -86,7 +87,7 @@ export const HOME_FAQ: FaqItem[] = [
   },
   {
     q: 'What surveys are open now?',
-    a: 'The monthly voting poll (Victorian election 28 November 2026 and the next federal election) and Money in Your Wallet, a quiz on Australian banknotes.',
+    a: 'The monthly voting poll (Victorian election 28 November 2026 and the next federal election), the Victoria 2026 issues survey, and Money in Your Wallet, a quiz on Australian banknotes.',
   },
   {
     q: 'Is the voting poll a scientific poll?',
@@ -114,6 +115,33 @@ export const MONEY_FAQ: FaqItem[] = [
   {
     q: 'What data do you keep?',
     a: 'Answers, a score, and optional age group and gender so we can show community tallies. We do not ask for your name or email.',
+  },
+];
+
+export const ISSUES_FAQ: FaqItem[] = [
+  {
+    q: 'Is this a scientific poll or a scorecard?',
+    a: 'No. It is an open oze survey. Anyone with the link can answer, including people outside Victoria and overseas. Results are not weighted. Party picks are your view of the sourced headlines — Election Tracker does not rank which party has the best policy.',
+  },
+  {
+    q: 'What is being asked?',
+    a: 'How much each of the 15 Victorian election issues matters to your vote (1–5), then whose sourced policy is closest — in your view — on your top 3 issues. Headlines come from the Election Tracker policy matrix.',
+  },
+  {
+    q: 'Why only my top 3 for the party question?',
+    a: 'Asking on all 15 would make the survey too long. Crowd splits are reported among people who put that issue in their top 3, not among everyone who rated it highly.',
+  },
+  {
+    q: 'Who can answer, and how are results split?',
+    a: 'Anyone. Everywhere includes every response (Victoria, the rest of Australia, and overseas). Victoria is respondents with a Victorian postcode (3000–3999 and 8000–8999).',
+  },
+  {
+    q: 'How often can I answer?',
+    a: 'Once per browser per calendar month, from August 2026 through election day 28 November 2026. Friends on the same wifi can each take it.',
+  },
+  {
+    q: 'Where are the party policies from?',
+    a: 'Sourced headlines on the Election Tracker matrix: https://electiontracker.au/elections/vic/2026/parties/matrix',
   },
 ];
 

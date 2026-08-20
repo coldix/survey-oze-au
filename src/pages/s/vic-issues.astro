@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Faq from '../../components/Faq.astro';
+import IssuesSurveyApp from '../../components/IssuesSurveyApp';
+import { describePollWindow } from '../../lib/poll-window';
+import { ISSUES_FAQ, ISSUES_URL, SITE, breadcrumbJsonLd, faqJsonLd, websiteJsonLd } from '../../lib/site';
+import { ISSUES_SOCIAL_COPY } from '../../lib/issues-survey';
+
+const pollWindow = describePollWindow();
+const jsonLd = [
+  websiteJsonLd(),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Victoria 2026 issues survey',
+    url: ISSUES_URL,
+    inLanguage: 'en-AU',
+    description:
+      'Rank the 15 Victorian election issues and pick whose sourced policy is closest in your view. Open oze survey — not a scientific poll and not a scorecard.',
+    isPartOf: { '@type': 'WebSite', name: SITE.name, url: SITE.url },
+    about: [
+      { '@type': 'Event', name: 'Victorian state election 2026', startDate: '2026-11-28' },
+    ],
+    relatedLink: SITE.tracker,
+  },
+  breadcrumbJsonLd([
+    { name: 'Home', url: SITE.url },
+    { name: 'Victoria 2026 issues', url: ISSUES_URL },
+  ]),
+  faqJsonLd(ISSUES_FAQ),
+];
+---
+<BaseLayout
+  title="Victoria 2026 issues — what should decide this election?"
+  description="Rank the 15 issues from the Election Tracker policy matrix, then pick whose sourced policy is closest in your view. About 3 minutes. Open to anyone, including overseas. Not a scientific poll."
+  jsonLd={jsonLd}
+>
+  <div class="wrap-poll" style="padding-block: 2rem;">
+    <IssuesSurveyApp client:only="react" window={pollWindow} />
+    <Faq items={ISSUES_FAQ} />
+    <noscript>
+      <p class="lede">Share: {ISSUES_URL} · {ISSUES_SOCIAL_COPY}</p>
+    </noscript>
+  </div>
+</BaseLayout>
